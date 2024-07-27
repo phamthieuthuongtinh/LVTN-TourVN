@@ -8,11 +8,14 @@ use App\Models\Category;
 use App\Models\Departure;
 use App\Models\Comment;
 use App\Models\Rating;
+use App\Models\Itinerary;
+use App\Models\Itinerarydetail;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class ToursController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      */
@@ -233,8 +236,30 @@ class ToursController extends Controller
             return Carbon::parse($depart->departure_date) >= Carbon::today();
         })->sortBy('departure_date')->first();
 
-     
-        return view('pages.detailtour',compact('tour','departures','nearestDeparture','comments','reply','ratings'));
+
+         // Lấy thông tin lịch trình
+            $itineraries = Itinerary::where('tour_id', $tour->id)
+                ->orderby('day_number', 'ASC')
+                ->get();
+
+            // Lấy chi tiết từng hoạt động
+            $itineraryDetails = ItineraryDetail::whereIn('ite_id', $itineraries->pluck('id'))
+                        ->get()
+                        ->groupBy('ite_id');
+
+            // Nhóm dữ liệu lịch trình theo ngày
+            $itinerariesByDay = $itineraries->groupBy('day_number')->map(function ($items) use ($itineraryDetails) {
+            return $items->map(function ($itinerary) use ($itineraryDetails) {
+            $details = isset($itineraryDetails[$itinerary->id]) ? $itineraryDetails[$itinerary->id] : collect();
+            return [
+            'location' => $itinerary->location,
+            'description' => $itinerary->description,
+            'details' => $details
+            ];
+            });
+            });
+    
+        return view('pages.detailtour',compact('tour','departures','nearestDeparture','comments','reply','ratings','itinerariesByDay'));
     }
 
 
@@ -242,5 +267,10 @@ class ToursController extends Controller
         $tours=Tour::where('status',1)->orderby('id','desc')->get();
         
         return view('admin.departures.index',compact('tours'));
+    }
+    public function manage_itinerary(){
+        $tours=Tour::where('status',1)->orderby('id','desc')->get();
+        
+        return view('admin.itineraries.index',compact('tours'));
     }
 }
