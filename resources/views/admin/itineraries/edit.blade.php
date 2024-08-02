@@ -16,7 +16,7 @@
         <div class="card-header mb-1">
             <h3 class="card-title">Quản lý lịch trình</h3>
         </div>
-        <div class="">
+      
             <div class="">
                 @php
                     $i=$day_number
@@ -28,73 +28,77 @@
                     <h5 class="">Nội dung ngày {{$i}}</h5>
                     <div id="day{{$i}}" class="day-container">
                         <div class="form-group mb-3">
-                            <label for="location{{$i}}">Địa điểm:</label>
+                            <label for="location{{$i}}">Địa điểm di chuyển:</label>
                             <input type="text" class="form-control" value="{{$itineraries->location}}" name="location" id="location{{$i}}" placeholder="Địa điểm" >
                         </div>
                         <div class="form-group mb-3">
-                            <label for="description{{$i}}">Mô tả chính:</label>
-                            <textarea class="form-control" name="description" id="description{{$i}}" placeholder="Mô tả chính">{{$itineraries->description}}</textarea>
+                            <label for="description{{$i}}">Các hoạt động chính:</label>
+                            <textarea class="form-control" name="description" id="editor" placeholder="Mô tả chính">{{$itineraries->description}}</textarea>
                         </div>
-                        <div class="form-group mb-3">
+                        <div class="form-group">
+                            <label for="exampleInputFile">Hình ảnh</label>
+                            <div class="input-group">
+                               <div class="custom-file">
+                                  <input type="file" name="image" value="{{$itineraries->image}}" class="form-control-file" id="exampleInputFile">
+                                  <label class="custom-file-label" for="exampleInputFile">Chọn hình ảnh</label>
+                               </div>
+                            </div>
+                         </div>
+                        <img width="200" height="200" src="{{asset('upload/tours/'.$itineraries->image)}}" alt="">
+                        {{-- <div class="form-group mb-3">
                             <label for="details{{$i}}">Chi tiết hoạt động:</label>
-                       
-                            
-                        </div>
-                
+                        </div> --}}
                         <!-- Nút thêm mô tả và hình ảnh -->
                     </div>
                     <input type="hidden" name="day_number" value="{{$i}}">
                     <input type="hidden" name="tour_id" value="{{$tour_id}}">
                     <div class="card-footer d-flex justify-content-center">
-                        <button type="button" class="btn btn-secondary add-detail-item mr-2" data-day="{{$i}}">Thêm chi tiết hoạt động</button>
+                        {{-- <button type="button" class="btn btn-secondary add-detail-item mr-2" data-day="{{$i}}">Thêm chi tiết hoạt động</button> --}}
                         <button type="submit" class="btn btn-primary">Cập nhật</button>
                     </div>
                 </form>
     
             
             </div>
-      
-    <!-- Modal -->
- 
 
-            <!-- Table and Edit Button -->
-            <div class="card-body table-responsive p-0">
-                <table class="table table-striped table-valign-middle" id="myTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Mô tả</th>
-                            <th>Hình ảnh</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($itineraryDetails as $key => $itine)
-                            <tr data-id="{{ $itine->id }}">
-                                <td>{{ $key + 1 }}</td>
-                                <td>{{ $itine->description }}</td>
-                                <td><img width="100" height="100" src="{{ asset('upload/tours/' . $itine->image) }}" alt=""></td>
-                                <td>
-                                    <button class="btn btn-warning edit-btn">Sửa</button>
-                                    <br><br>
-                                    <form method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa?');"
-                                        action="{{ route('itineraries.destroy_itinerarydetail', [$itine->id]) }}">
-                                        @method('DELETE')
-                                        @csrf
-                                        <input type="submit" class="btn btn-danger" value="Xóa">
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            {{-- <div class="card-header mb-1">
+                <h3 class="card-title">Danh sách chi tiết lịch trình</h3>
             </div>
-
-
-        </div>
+        <div class="card-body table-responsive p-0">
+            <table class="table table-striped table-valign-middle" id="myTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Mô tả</th>
+                        <th>Hình ảnh</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($itineraryDetails as $key => $itine)
+                        <tr>
+                            <td>{{ $key + 1 }}</td>
+                            <td>{{ $itine->description }}</td>
+                            <td><img width="100" height="100" src="{{ asset('upload/tours/' . $itine->image) }}" alt=""></td>
+                            <td>
+                                <a class="btn btn-warning" href="{{route('itineraries.show_itinerayDetail',[$itine->id])}}">Sửa</a>
+                                <br><br>
+                                <form method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa?');"
+                                    action="{{ route('itineraries.destroy_itinerarydetail', [$itine->id]) }}">
+                                    @method('DELETE')
+                                    @csrf
+                                    <input type="submit" class="btn btn-danger" value="Xóa">
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div> --}}
     </div>
+   
     <!-- Template cho mục mô tả và hình ảnh -->
-    <script type="text/template" id="item-template">
+    {{-- <script type="text/template" id="item-template">
         <div class="item-container mb-3">
             <div class="form-group mb-3">
                 <label for="description{day}_new">Nội dung:</label>
@@ -107,7 +111,6 @@
             <button type="button" class="btn btn-danger remove-item">Xóa</button>
         </div>
     </script>
-    
     
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -125,31 +128,25 @@
                 }
             });
         });
-    </script>
-    
+    </script> --}}
 
-
-    
-    
-    
     <style>
        
-                .form-container {
-                    border: 1px solid #01203f; /* Đặt viền cho form */
-                    padding: 1rem; /* Thêm khoảng cách bên trong form */
-                    margin-bottom: 1rem; /* Thêm khoảng cách giữa các form */
-                    border-radius: 0.375rem; /* Tạo các góc bo tròn cho form */
-                    box-shadow: 0 0 0.125rem rgba(0, 0, 0, 0.075); /* Thêm bóng nhẹ cho form */
-                }
-                .form-group {
-                    margin-bottom: 1rem; /* Khoảng cách giữa các nhóm trường trong form */
-                }
-                .card-footer {
-                    margin-top: 1rem; /* Khoảng cách trên footer */
-                }
-                .border-end {
-                    border-right: 1px solid #f40468; /* Đặt viền bên phải cho cột */
-                }
-           
+        .form-container {
+            border: 1px solid #01203f; /* Đặt viền cho form */
+            padding: 1rem; /* Thêm khoảng cách bên trong form */
+            margin-bottom: 1rem; /* Thêm khoảng cách giữa các form */
+            border-radius: 0.375rem; /* Tạo các góc bo tròn cho form */
+            box-shadow: 0 0 0.125rem rgba(0, 0, 0, 0.075); /* Thêm bóng nhẹ cho form */
+        }
+        .form-group {
+            margin-bottom: 1rem; /* Khoảng cách giữa các nhóm trường trong form */
+        }
+        .card-footer {
+            margin-top: 1rem; /* Khoảng cách trên footer */
+        }
+        .border-end {
+            border-right: 1px solid #f40468; /* Đặt viền bên phải cho cột */
+        } 
     </style>
 @endsection

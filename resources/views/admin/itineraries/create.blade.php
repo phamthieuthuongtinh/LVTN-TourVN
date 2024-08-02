@@ -28,26 +28,35 @@
                     <h5 class="">Nội dung ngày {{$i}}</h5>
                     <div id="day{{$i}}" class="day-container">
                         <div class="form-group mb-3">
-                            <label for="location{{$i}}">Địa điểm:</label>
-                            <input type="text" class="form-control" name="location" id="location{{$i}}" placeholder="Địa điểm" value="{{ old('location') }}">
+                            <label for="location{{$i}}">Địa điểm di chuyển:</label>
+                            <input type="text" class="form-control" name="location" id="location{{$i}}" placeholder="Địa điểm" value="">
                         </div>
                         <div class="form-group mb-3">
-                            <label for="description{{$i}}">Mô tả chính:</label>
-                            <textarea class="form-control" name="description" id="description{{$i}}" placeholder="Mô tả chính">{{ old('description') }}</textarea>
+                            <label for="description{{$i}}">Các hoạt động chính:</label>
+                            <textarea class="form-control" name="description" id="editor" placeholder="Mô tả chính"></textarea>
                         </div>
-                        <div class="form-group mb-3">
+                        <div class="form-group">
+                            <label for="exampleInputFile">Hình ảnh</label>
+                            <div class="input-group">
+                               <div class="custom-file">
+                                  <input type="file" name="image" class="form-control-file" id="exampleInputFile">
+                                  <label class="custom-file-label" for="exampleInputFile">Chọn hình ảnh</label>
+                               </div>
+                            </div>
+                         </div>
+                        {{-- <div class="form-group mb-3">
                             <label for="details{{$i}}">Chi tiết hoạt động:</label>
                             <div class="details-container">
                                 <!-- Phần này sẽ được sử dụng JavaScript để thêm các chi tiết hoạt động -->
                             </div>
-                        </div>
+                        </div> --}}
                 
                         <!-- Nút thêm mô tả và hình ảnh -->
                     </div>
                     <input type="hidden" name="day_number" value="{{$i}}">
                     <input type="hidden" name="tour_id" value="{{$tour_id}}">
                     <div class="card-footer d-flex justify-content-center">
-                        <button type="button" class="btn btn-secondary add-detail-item pd-3 mr-3" data-day="{{$i}}">Thêm chi tiết</button>
+                        {{-- <button type="button" class="btn btn-secondary add-detail-item pd-3 mr-3" data-day="{{$i}}">Thêm chi tiết</button> --}}
                         <button type="submit" class="btn btn-primary">Lưu</button>
                     </div>
                 </form>
@@ -60,7 +69,7 @@
         </div>
     </div>
     <!-- Template cho mục mô tả và hình ảnh -->
-    <script type="text/template" id="item-template">
+    {{-- <script type="text/template" id="item-template">
         <div class="item-container mb-3">
             <div class="form-group mb-3">
                 <label for="description{day}_new">Nội dung:</label>
@@ -91,7 +100,7 @@
                 }
             });
         });
-    </script>
+    </script> --}}
     
     <style>
        

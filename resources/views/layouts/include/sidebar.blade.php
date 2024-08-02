@@ -86,6 +86,14 @@
             </a>
             <ul class="nav nav-treeview pl-4">
               <li class="nav-item">
+                <a href="{{route('tours.index')}}" class="nav-link">
+                  <i class="fa-regular fa-rectangle-list"></i>
+                  <p>Tất Cả Tour</p>
+                </a>
+              </li>
+            </ul>
+            <ul class="nav nav-treeview pl-4">
+              <li class="nav-item">
                 <a href="{{route('tours.create')}}" class="nav-link">
                   <i class="fa-solid fa-plus"></i>
                   <p>Thêm Tour</p>
@@ -110,9 +118,9 @@
             </ul>
             <ul class="nav nav-treeview pl-4">
               <li class="nav-item">
-                <a href="{{route('tours.index')}}" class="nav-link">
-                  <i class="fa-regular fa-rectangle-list"></i>
-                  <p>Tất Cả Tour</p>
+                <a href="{{route('tours.service')}}" class="nav-link">
+                  <i class="fa-solid fa-pen"></i>
+                  <p>Quản lý dịch vụ</p>
                 </a>
               </li>
             </ul>
@@ -210,6 +218,7 @@
               </li>
             </ul>
           </li>
+        
           <br>
           <li class="nav-item li-break">
             <a href="{{route('banners.index')}}" class="nav-link">

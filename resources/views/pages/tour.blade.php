@@ -8,6 +8,7 @@
                 </div>
                 <div class="row g-4 justify-content-center">
                     @foreach ($tours as $key => $tour)
+                    @if ($tour->departures->isNotEmpty())
                         <!-- Modal -->
                         <div class="modal fade" id="bookingModal_{{ $tour->id }}" tabindex="-1" aria-labelledby="bookingModalLabel_{{ $tour->id }}"
                             aria-hidden="true">
@@ -33,7 +34,11 @@
                                             @foreach ($tour->departures as $key=>$depart )
                                                 <tr>
                                                     <td>{{$key+1}}</td>
-                                                    <td>{{$depart->departure_date}}</td>
+                                                    <td>  
+                                                       
+                                                        {{ $depart->departure_date}}
+                                                       
+                                                    </td>
                                                     <td>{{$depart->quantity}}</td>
                                                 </tr>
                                             @endforeach
@@ -361,6 +366,8 @@
                                 </div>
                             </div>
                         </div>
+                  
+                    @endif
                     @endforeach
                 </div>
             </div>

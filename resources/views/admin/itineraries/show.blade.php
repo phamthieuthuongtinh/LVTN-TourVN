@@ -2,7 +2,7 @@
 @section('content')
 <div class="card card-primary">
    <div class="card-header">
-      <h3 class="card-title">Tất Cả Danh Mục</h3>
+      <h3 class="card-title">Tất Cả Ngày</h3>
    </div>
    @if ($errors->any())
     <div class="alert alert-danger">
@@ -33,7 +33,8 @@
                             <th>Ngày</th>
                             <th>Địa điểm</th>
                             <th>Mô tả chính</th>
-                            <th>Chi tiết hoạt động</th>
+                            <th>Hình ảnh</th>
+                     
                             <th>Thao tác</th>
                         </tr>
                     </thead>
@@ -49,17 +50,9 @@
                 
                                 @if ($currentItinerary)
                                     <td>{{ $currentItinerary->location }}</td>
-                                    <td>{{ $currentItinerary->description }}</td>
+                                    <td>{!! $currentItinerary->description !!}</td>
                                     
-                                    <td>
-                                        @foreach ($currentItineraryDetails as $itine)
-                                            - {{ $itine->description }}
-                                            <br>
-                                            <img width="100" height="100" src="{{ asset('upload/tours/' . $itine->image) }}" alt="">
-                                            <br>
-                                        @endforeach
-                                    </td>
-                
+                                    <td><img width="100" height="100" src="{{ asset('upload/tours/' . $currentItinerary->image) }}" alt=""></td>
                                     <td>
                                         <a href="{{ route('itineraries.change',['tour_id' => $tour_id ,'day_number' => $i]) }}" class="btn btn-warning">Cập nhật</a>
                                     </td>

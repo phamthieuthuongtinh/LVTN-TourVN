@@ -3,28 +3,26 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Storage;
 class ImageUploadController extends Controller
 {
-    public function upload(Request $request)
+    public function uploadImage(Request $request)
     {
-        // Kiểm tra nếu có lỗi
-        if ($request->hasFile('upload')) {
-            $file = $request->file('upload');
-            $filename = time() . '-' . $file->getClientOriginalName();
-
-            // Lưu tệp vào thư mục 'public/uploads'
-            $file->move(public_path('uploads'), $filename);
-
-            // Trả về URL của hình ảnh vừa tải lên
-            $url = asset('uploads/' . $filename);
-
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $fileName = time() . '-' . $file->getClientOriginalName();
+            $path = $file->storeAs('upload/tours', $fileName, 'public'); // Sử dụng driver 'public'
+    
             return response()->json([
-                'uploaded' => true,
-                'url' => $url
+                'success' => true,
+                'path' => Storage::url($path) // Đảm bảo đường dẫn URL là công khai
             ]);
         }
-
-        return response()->json(['uploaded' => false]);
+    
+        return response()->json([
+            'success' => false,
+            'message' => 'No image uploaded'
+        ], 400);
     }
+    
 }

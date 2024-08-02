@@ -52,7 +52,7 @@ class DepartureController extends Controller
     public function show(string $id)
     {   
         $tour_id=$id;
-        $departures= Departure::where('tour_id',$id)->get();
+        $departures= Departure::where('tour_id',$id)->orderby('id','DESC')->get();
         return view('admin.departures.edit',compact('departures','tour_id'));
     }
 
@@ -77,10 +77,16 @@ class DepartureController extends Controller
      */
     public function destroy(string $id)
     {
+
         $departure=Departure::find($id);
-        $departure->status=0;
+        if($departure->status==0 ){
+            $departure->status=1;
+        }
+        else{
+             $departure->status=0;
+        }
         $departure->save();
-        toastr()->success('Xóa thành công!');
+        toastr()->success('Cập nhật thành công!');
         return redirect()->back();
     }
 }

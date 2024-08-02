@@ -9,6 +9,7 @@ use App\Models\Departure;
 use App\Models\Comment;
 use App\Models\Rating;
 use App\Models\Itinerary;
+use App\Models\Service;
 use App\Models\Itinerarydetail;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -212,22 +213,25 @@ class ToursController extends Controller
     public function tour($slug){
         $category= Category::where('slug',$slug)->first();
         $tours= Tour::where('category_id',$category->id)->with('category')->with(['departures' => function($query) {
-            $query->where('departure_date', '>=', Carbon::today())
+            $query->where('status',1)->where('departure_date', '>=', Carbon::today())
                   ->orderBy('departure_date', 'ASC');
         }])->get();
 
         $nearestDeparture = null;
         foreach ($tours as $tour) {
-            $nearestDeparture = $tour->departures->first(); // Lấy ngày khởi hành gần nhất của tour đầu tiên
-            if ($nearestDeparture) {
+            if ($tour->departures->isNotEmpty()) {
+                $nearestDeparture = $tour->departures->first(); // Lấy ngày khởi hành gần nhất của tour đầu tiên
                 break; // Nếu đã tìm thấy ngày khởi hành gần nhất, thoát vòng lặp
             }
+            
         }
+
         return view('pages.tour',compact('tours','nearestDeparture'));
     }
     public function detail_tour($slug){
         
         $tour = Tour::where('slug', $slug)->first();
+        $service = Service::where('tour_id', $tour->id)->first();
         $comments = Comment::where('comment_tour_id', $tour->id)->where('status', 1)->whereNull('comment_parent_comment')->get();
         $reply=Comment::where('comment_tour_id',$tour->id)->where('status',1)->whereNotNull('comment_parent_comment')->get();
         $ratings=Rating::where('tour_id',$tour->id)->get();
@@ -243,23 +247,23 @@ class ToursController extends Controller
                 ->get();
 
             // Lấy chi tiết từng hoạt động
-            $itineraryDetails = ItineraryDetail::whereIn('ite_id', $itineraries->pluck('id'))
-                        ->get()
-                        ->groupBy('ite_id');
+            // $itineraryDetails = ItineraryDetail::whereIn('ite_id', $itineraries->pluck('id'))
+            //             ->get()
+            //             ->groupBy('ite_id');
 
-            // Nhóm dữ liệu lịch trình theo ngày
-            $itinerariesByDay = $itineraries->groupBy('day_number')->map(function ($items) use ($itineraryDetails) {
-            return $items->map(function ($itinerary) use ($itineraryDetails) {
-            $details = isset($itineraryDetails[$itinerary->id]) ? $itineraryDetails[$itinerary->id] : collect();
-            return [
-            'location' => $itinerary->location,
-            'description' => $itinerary->description,
-            'details' => $details
-            ];
-            });
-            });
-    
-        return view('pages.detailtour',compact('tour','departures','nearestDeparture','comments','reply','ratings','itinerariesByDay'));
+            // // Nhóm dữ liệu lịch trình theo ngày
+            // $itinerariesByDay = $itineraries->groupBy('day_number')->map(function ($items) use ($itineraryDetails) {
+            // return $items->map(function ($itinerary) use ($itineraryDetails) {
+            // $details = isset($itineraryDetails[$itinerary->id]) ? $itineraryDetails[$itinerary->id] : collect();
+            // return [
+            // 'location' => $itinerary->location,
+            // 'description' => $itinerary->description,
+            // 'details' => $details
+            // ];
+            // });
+            // });
+
+        return view('pages.detailtour',compact('tour','departures','nearestDeparture','comments','reply','ratings','itineraries','service'));
     }
 
 
@@ -272,5 +276,10 @@ class ToursController extends Controller
         $tours=Tour::where('status',1)->orderby('id','desc')->get();
         
         return view('admin.itineraries.index',compact('tours'));
+    }
+    public function manage_service(){
+        $tours=Tour::where('status',1)->orderby('id','desc')->get();
+        
+        return view('admin.services.index',compact('tours'));
     }
 }

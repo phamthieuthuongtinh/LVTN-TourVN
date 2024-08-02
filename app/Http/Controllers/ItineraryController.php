@@ -23,7 +23,7 @@ class ItineraryController extends Controller
      */
     public function create()
     {
-        //
+        
     }
 
     /**
@@ -35,6 +35,7 @@ class ItineraryController extends Controller
         'location' => 'required',
         'description' => 'required',
         'day_number' => 'required',
+        'image'=>'required',
         'tour_id' => 'required',
         'details.*.descriptions.*' => 'required',
         'details.*.images.*' => 'nullable|image' // Thay đổi `nullable` nếu hình ảnh không bắt buộc
@@ -45,6 +46,18 @@ class ItineraryController extends Controller
     $itinerary->day_number = $data['day_number'];
     $itinerary->location = $data['location'];
     $itinerary->description = $data['description'];
+    if (isset($data['image'])) {
+         
+        $get_image = $data['image'];
+        $path = 'upload/tours/';
+        $get_name_image = $get_image->getClientOriginalName();
+        $name_image = current(explode('.',$get_name_image));
+        $new_image = $name_image.rand(0,99).'.'.$get_image->getClientOriginalExtension();
+        $get_image->move($path,$new_image);
+
+        $itinerary->image = $new_image;
+
+    }
     $itinerary->save();
 
     // Lưu từng mô tả và hình ảnh cho ngày cụ thể
@@ -157,31 +170,43 @@ class ItineraryController extends Controller
         $data=$request->all();
         $itinerary->location=$data['location'];
         $itinerary->description=$data['description'];
-        $itinerary->save();
+       
+        if (isset($data['image'])) {
+         
+            $get_image = $data['image'];
+            $path = 'upload/tours/';
+            $get_name_image = $get_image->getClientOriginalName();
+            $name_image = current(explode('.',$get_name_image));
+            $new_image = $name_image.rand(0,99).'.'.$get_image->getClientOriginalExtension();
+            $get_image->move($path,$new_image);
 
-        if (isset($data['details'])) {
-            foreach ($data['details'] as $details) {
-                foreach ($details['descriptions'] as $index => $description) {
-                    $itineraryDetail = new ItineraryDetail();
-                    $itineraryDetail->ite_id = $itinerary->id;
-                    $itineraryDetail->day_number = $data['day_number'];
-                    $itineraryDetail->description = $description;
-    
-                    if (isset($details['images'][$index])) {
-                        $get_image = $details['images'][$index];
-                        $path = 'upload/tours/';
-                        $get_name_image = $get_image->getClientOriginalName();
-                        $name_image = current(explode('.',$get_name_image));
-                        $new_image = $name_image.rand(0,99).'.'.$get_image->getClientOriginalExtension();
-                        $get_image->move($path,$new_image);
-    
-                        $itineraryDetail->image = $new_image;
-                    }
-    
-                    $itineraryDetail->save(); // Đừng quên gọi save() để lưu dữ liệu
-                }
-            }
+            $itinerary->image = $new_image;
+
         }
+         $itinerary->save();
+        // if (isset($data['details'])) {
+        //     foreach ($data['details'] as $details) {
+        //         foreach ($details['descriptions'] as $index => $description) {
+        //             $itineraryDetail = new ItineraryDetail();
+        //             $itineraryDetail->ite_id = $itinerary->id;
+        //             $itineraryDetail->day_number = $data['day_number'];
+        //             $itineraryDetail->description = $description;
+    
+        //             if (isset($details['images'][$index])) {
+        //                 $get_image = $details['images'][$index];
+        //                 $path = 'upload/tours/';
+        //                 $get_name_image = $get_image->getClientOriginalName();
+        //                 $name_image = current(explode('.',$get_name_image));
+        //                 $new_image = $name_image.rand(0,99).'.'.$get_image->getClientOriginalExtension();
+        //                 $get_image->move($path,$new_image);
+    
+        //                 $itineraryDetail->image = $new_image;
+        //             }
+    
+        //             $itineraryDetail->save(); // Đừng quên gọi save() để lưu dữ liệu
+        //         }
+        //     }
+        // }
     
         // Thông báo và chuyển hướng nếu cần
         toastr()->success('Cập nhật lịch trình thành công!');
@@ -193,4 +218,36 @@ class ItineraryController extends Controller
         toastr()->success('Xóa thành công!');
         return redirect()->back();
     }
+
+    public function edit_itinerayDetail(Request $request, string $id){
+        $itinerary = Itinerarydetail::where('id', $id)->first();
+        $data=$request->all();
+        $itinerary->description=$data['description'];
+        $itinerary->image_name=$data['image_name'];
+
+        if (isset($data['image'])) {
+         
+                        $get_image = $data['image'];
+                        $path = 'upload/tours/';
+                        $get_name_image = $get_image->getClientOriginalName();
+                        $name_image = current(explode('.',$get_name_image));
+                        $new_image = $name_image.rand(0,99).'.'.$get_image->getClientOriginalExtension();
+                        $get_image->move($path,$new_image);
+    
+                        $itinerary->image = $new_image;
+           
+        }
+        $itinerary->save();
+        // Thông báo và chuyển hướng nếu cần
+        toastr()->success('Cập nhật lịch trình thành công!');
+        return redirect()->back();
+    }
+    public function show_itinerayDetail(Request $request, string $id){
+        $itinerayDetail=Itinerarydetail::where('id',$id)->first();
+  
+        return view('admin.itineraries.showdetail',compact('itinerayDetail'));
+ 
+    }
+   
+
 }

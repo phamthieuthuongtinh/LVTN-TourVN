@@ -12,6 +12,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\DepartureController;
 use App\Http\Controllers\ItineraryController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ImageUploadController;
 
 use Illuminate\Support\Facades\Auth;
@@ -32,8 +33,9 @@ Route::get('/tours/departure', [ToursController::class, 'manage_departure'])->na
 Route::get('/tour/{slug}', [ToursController::class, 'tour'])->name('tour');
 Route::get('/chi-tiet-tour/{slug}', [ToursController::class, 'detail_tour'])->name('chi-tiet-tour');
 Route::get('/tours/itinerary', [ToursController::class, 'manage_itinerary'])->name('tours.itinerary');
+Route::get('/tours/service', [ToursController::class, 'manage_service'])->name('tours.service');
 Route::resource('/tours', ToursController::class);
-Route::post('/upload-image', [ImageUploadController::class, 'upload'])->name('upload.image');
+Route::post('/upload-image', [ImageUploadController::class, 'uploadImage'])->name('upload.image');
 
 //Departure
 Route::resource('/tours/departures', DepartureController::class);
@@ -43,8 +45,9 @@ Route::get('/tours/itinerary/add/{day_number}/{tour_id}', [ItineraryController::
 Route::get('/tours/itinerary/change/{tour_id}/{day_number}', [ItineraryController::class, 'change'])->name('itineraries.change');
 Route::post('/tours/itinerary/updated/{tour_id}/{day_number}', [ItineraryController::class, 'update_itinerary'])->name('itineraries.updated');
 Route::delete('/tours/itinerary/change/destroy/{itinerarydetail}', [ItineraryController::class, 'destroy_itinerarydetail'])->name('itineraries.destroy_itinerarydetail');
-
-
+Route::get('/tours/itinerary/edit/{itinerarydetail}', [ItineraryController::class, 'show_itinerayDetail'])->name('itineraries.show_itinerayDetail');
+Route::post('/tours/itinerary/edit/{itinerarydetail}', [ItineraryController::class, 'edit_itinerayDetail'])->name('itineraries.edit_itinerayDetail');
+Route::post('/upload-image', [ImageUploadController::class, 'uploadImage']);
 //Gallery
 Route::resource('/galleries', GalleryController::class);
 
@@ -70,4 +73,8 @@ Route::post('/reply', [CommentController::class, 'reply'])->name('comment.reply'
 //Voucher
 Route::resource('/vouchers', VoucherController::class);
 Route::post('/check-voucher', [VoucherController::class, 'check_voucher'])->name('vouchers.check');
+
+//service
+Route::resource('/tours/services', ServiceController::class);
+
 

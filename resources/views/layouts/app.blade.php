@@ -17,7 +17,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
   <link rel="stylesheet" href="//cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
-
+  <link href="https://cdn.jsdelivr.net/npm/froala-editor@3.2.6/css/froala_editor.pkgd.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/froala-editor@3.2.6/js/froala_editor.pkgd.min.js"></script>
   
 </head>
 <!--
@@ -213,16 +214,23 @@
 <script src="{{asset('backend/dist/js/pages/dashboard3.js')}}"></script>
 <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
 <script src="//cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
-<script src="{{ asset('ckeditor/ckeditor.js') }}"></script>
-
-
+{{-- <script src="{{ asset('ckeditor/ckeditor.js') }}"></script> --}}
 <script>
+  new FroalaEditor('#editor');
+  new FroalaEditor('#editor1');
+  new FroalaEditor('#editor2');
+  new FroalaEditor('#editor3');
+</script>
+
+
+
+{{-- <script>
   CKEDITOR.replace('ckeditor1', {
       filebrowserUploadUrl: "{{ route('upload.image') }}",
       filebrowserUploadMethod: 'form',
       extraPlugins: 'uploadimage'
   });
-</script>
+</script> --}}
 
 <script>
   $(document).ready(function() {

@@ -104,38 +104,29 @@ $tabActive = 'home'; // Default active tab
                                 <h6 class="section-title text-center text-primary text-uppercase">Thông tin chi tiết tour</h6>
                                 
                             </div>
-                            @foreach($itinerariesByDay as $dayNumber => $itineraries)
-                                <h3>Ngày {{ $dayNumber }}:</h3>
-                                @foreach($itineraries as $itinerary)
-                                    <h5>{{ $itinerary['description'] }}</h5>
-                                    @foreach($itinerary['details'] as $detail)
-                                        <p>{{ $detail->description }}</p>
-                                        @if($detail->image)
-                                            <img src="{{ asset('upload/tours/'.$detail->image) }}" alt="Image" class="img-fluid">
-                                        @endif
-                                    @endforeach
+                            <div class="container mt-2">
+                                @foreach($itineraries as $dayNumber => $itinerary)
+                                    <div class="itinerary-day">
+                                        <h5 class="itinerary-header">Ngày {{ $dayNumber + 1 }}: {!! $itinerary->location !!} <span class="arrow">&#9660;</span></h5>
+                                        <div class="itinerary-content">
+                                            {!! $itinerary->description !!}
+                                            <img src="{{ asset('upload/tours/'.$itinerary['image']) }}" alt="Image" class="img-fluid">
+                                        </div>
+                                    </div>
                                 @endforeach
-                            @endforeach
-                            <div class="w100 fl">
+                            </div>
+                            
+                        
+                            
+                            <div class="w100 fl mt-3">
                                 <div class="row">
                                 <div class="col-xs-12 col-md-6">
                                     <div class="tit-service-attach">Giá dịch vụ bao gồm</div>
-                                    <ul class="ul-lst-service-attach">
-                                        <li><img alt="du lịch" src="https://vietnamtravel.net.vn/assets/desktop/images/bao-hiem.png"> Bảo hiểm du lịch theo quy định</li>
-                                        <li><img alt="du lịch" src="https://vietnamtravel.net.vn/assets/desktop/images/bua-an.png"> Các bữa ăn theo chương trình</li>
-                                        <li><img alt="du lịch" src="https://vietnamtravel.net.vn/assets/desktop/images/huong-dan-vien.png"> Hướng dẫn viên suốt chương trình</li>
-                                        <li><img alt="du lịch" src="https://vietnamtravel.net.vn/assets/desktop/images/ve-tham-quan.png"> Vé tham quan theo chương trình</li>
-                                        <li><img alt="du lịch" src="https://vietnamtravel.net.vn/assets/desktop/images/van-chuyen.png"> Các loại hình vận chuyển theo chương trình</li>
-                                    </ul>
+                                    {!!$service->include!!}
                                 </div>
                                 <div class="col-xs-12 col-md-6">
                                     <div class="tit-service-attach">Giá dịch vụ không bao gồm</div>
-                                    <ul class="ul-lst-service-attach">
-                                        <li><img alt="du lịch" src="https://vietnamtravel.net.vn/assets/desktop/images/ho-chieu.png"> Chứng minh thư, hộ chiếu còn hiệu lực 6 tháng</li>
-                                        <li><img alt="du lịch" src="https://vietnamtravel.net.vn/assets/desktop/images/hanh-ly.png"> Phí hành lý quá cước và các chi phí cá nhân</li>
-                                        <li><img alt="du lịch" src="https://vietnamtravel.net.vn/assets/desktop/images/ho-chieu.png"> Visa tái nhập cho người nước ngoài(nếu có)</li>
-                                        <li><img alt="du lịch" src="https://vietnamtravel.net.vn/assets/desktop/images/money.png"> Tiền Tip cho hướng dẫn viên địa phương</li>
-                                    </ul>
+                                    {!!$service->not_include!!}
                                 </div>
                                 </div>
                             </div>
@@ -421,7 +412,7 @@ $tabActive = 'home'; // Default active tab
                         
                         
                     </div>
-                
+                    
                     <div class="comment-list">
                         @foreach ( $comments as $key=>$cmt )
                             <div class="comment-item">
@@ -466,9 +457,6 @@ $tabActive = 'home'; // Default active tab
                                 </div>
                             </div>
                         @endforeach
-                        
-                        
-                        <!-- Các comment khác -->
                     </div>
                 </div>    
              </div>
@@ -480,7 +468,7 @@ $tabActive = 'home'; // Default active tab
 
 
 
-        <!-- Column Right Start -->
+        <!-- Cột phải start -->
         <div class="container col-md-3 col-xs-12 wow zoomIn">
             <div class="w100 fl top-15 box-cldl">
                 <div class="w100 fl tit-child-larg">
@@ -651,7 +639,7 @@ $tabActive = 'home'; // Default active tab
                 </ul>
             </div>
         </div>
-        <!-- Column Right End -->
+        <!-- Cột phải End -->
     </div>
 </div>    
 
@@ -691,7 +679,10 @@ $tabActive = 'home'; // Default active tab
        });
    });
 </script>
-{{-- Chọn sao --}}
+{{-- script chuyển tab-content  --}}
+
+
+{{-- Chọn sao đánh giá --}}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const stars = document.querySelectorAll('.star');
@@ -736,9 +727,24 @@ $tabActive = 'home'; // Default active tab
         }
     });
 </script>
+{{-- Chọn sao đánh giá --}}
 
 
+{{-- Mũi tên hiển thị nội dung lịch trình --}}
+<script>  
+    document.addEventListener('DOMContentLoaded', function() {
+        var headers = document.querySelectorAll('.itinerary-header');
+        headers.forEach(function(header) {
+            header.addEventListener('click', function() {
+                var content = this.nextElementSibling;
+                content.style.display = (content.style.display === "none" || content.style.display === "") ? "block" : "none";
+                this.classList.toggle('collapsed');
+            });
+        });
+    });
 
+</script>
+{{-- Mũi tên hiển thị nội dung lịch trình --}}
 
 <style>
    .nav-tabs .nav-link2.active {
@@ -792,6 +798,50 @@ $tabActive = 'home'; // Default active tab
         color: gray !important; /* Màu xám cho sao chưa chọn */
     
     }
+    .itinerary-day {
+    margin-bottom: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
 
+    .itinerary-header {
+        cursor: pointer;
+        margin-bottom: 0;
+        padding: 10px;
+        background-color: #f5f5f5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 5px 5px 0 0;
+    }
+
+    .itinerary-header:hover {
+        background-color: #e0e0e0;
+    }
+
+    .arrow {
+        transition: transform 0.3s;
+    }
+
+    .itinerary-header.collapsed .arrow {
+        transform: rotate(180deg);
+    }
+
+    .itinerary-content {
+        display: none;
+        padding: 10px;
+        border-top: 1px solid #ddd;
+        background-color: #fff;
+    }
+    .itinerary-content img {
+        display: block;
+        margin: 10px auto; /* Căn giữa hình ảnh */
+        width: 800px !important;
+        height: 400px !important;
+    
+    }
+
+    
 </style>
 @endsection
