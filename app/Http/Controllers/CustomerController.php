@@ -7,6 +7,7 @@ use App\Models\Customer;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Session;
+use App\Models\User;
 
 class CustomerController extends Controller
 {
@@ -132,5 +133,6 @@ class CustomerController extends Controller
     {
        
     }
+
     
 }

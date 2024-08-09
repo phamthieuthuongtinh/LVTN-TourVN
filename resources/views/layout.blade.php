@@ -607,14 +607,18 @@
 
     {{-- // Send order --}}
     <script type="text/javascript">
-    
         $(document).ready(function() {
-           
+            var selectedPayment = 'COD'; // Giá trị mặc định
+        
+            // Bắt sự kiện thay đổi trên các radio button
+            $('.payment-option').change(function() {
+                selectedPayment = $(this).val();
+            });
+        
             $('.send_order').click(function() {
                 if (!$('.customer_id').val()) {
                     alert('Bạn chưa đăng nhập tài khoản, hãy đăng nhập tài khoản để đặt tour!');
                     window.location.href = "{{ route('login-reg') }}"; // Đường dẫn đến trang đăng nhập
-              
                     return;
                 }
                 swal({
@@ -624,15 +628,12 @@
                         showCancelButton: true,
                         confirmButtonClass: "btn-success",
                         cancelButtonClass: "btn-danger",
-
                         confirmButtonText: "Cảm ơn, đặt tour!",
                         cancelButtonText: "Không, hủy đặt tour!",
                         closeOnConfirm: false,
                         closeOnCancel: false
                     },
-                   
                     function(isConfirm) {
-                        
                         if (isConfirm) {
                             var tour_id = $('.tour_id').val();
                             var name = $('.name').val();
@@ -647,48 +648,126 @@
                             var voucher = $('.voucher').val();
                             var departure_date = $('.departure_date').val();
                             var _token = $('input[name="_token"]').val();
-
-                            $.ajax({
-                                url:"{{ route('orders.confirm') }}",
+                            var url = '';
+                            var data = {
+                                tour_id: tour_id,
+                                name: name,
+                                email: email,
+                                phone: phone,
+                                note: note,
+                                address: address,
+                                nguoi_lon: nguoi_lon,
+                                tre_em: tre_em,
+                                tre_nho: tre_nho,
+                                so_sinh: so_sinh,
+                                voucher: voucher,
+                                departure_date: departure_date,
+                                payment_method: selectedPayment,
+                                _token: _token
+                            };
+                            if (selectedPayment === 'COD' || selectedPayment === 'BANK') {
+                                $.ajax({
+                                    url: "{{ route('orders.confirm') }}",
+                                    method: 'POST',
+                                    data: data,
+                                    success: function() {
+                                        swal("Đặt hàng", "Đặt tour thành công", "success");
+                                    }
+                                });
+                                window.setTimeout(function() {
+                                    location.reload();
+                                }, 3000);
+                            } else if (selectedPayment === 'VNPAY') {
+                                $.ajax({
+                                url: "{{ route('methods.vnpay') }}",
                                 method: 'POST',
-                                data: {
-                                    tour_id:tour_id,
-                                    name: name,
-                                    email: email,
-                                    phone: phone,
-                                    note: note,
-                                    address: address,
-                                    nguoi_lon: nguoi_lon,
-                                    tre_em: tre_em,
-                                    tre_nho: tre_nho,
-                                    so_sinh: so_sinh,
-                                    voucher: voucher,
-                                    departure_date:departure_date,
-                                    _token: _token
+                                data: data,
+                                success: function(response) {
+                                    if (response.data) {
+                                        window.location.href = response.data;
+                                    } else {
+                                        swal("Lỗi", "Không thể chuyển hướng đến VNPAY", "error");
+                                    }
                                 },
-                                success: function() {
-                                    swal("Đặt hàng", "Đặt tour thành công", "success");
+                                error: function(xhr, status, error) {
+                                    console.error("Error: " + error);
+                                    swal("Lỗi", "Có lỗi xảy ra khi xử lý yêu cầu thanh toán.", "error");
                                 }
                             });
-                    
-                            window.setTimeout(function() {
-                                location.reload();
-                            }, 3000);
+                               
+                            } else if (selectedPayment === 'ZALOPAY') {
+                                $.ajax({
+                                url: "{{ route('methods.zalopay') }}",
+                                method: 'POST',
+                                data: data,
+                                success: function(response) {
+                                    if (response.data) {
+                                        window.location.href = response.data;
+                                    } else {
+                                        swal("Lỗi", "Không thể chuyển hướng đến VNPAY", "error");
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    console.error("Error: " + error);
+                                    swal("Lỗi", "Có lỗi xảy ra khi xử lý yêu cầu thanh toán.", "error");
+                                }
+                            });
+                            } else if (selectedPayment === 'MOMO') {
+                                $.ajax({
+                                url: "{{ route('methods.momo') }}",
+                                method: 'POST',
+                                data: data,
+                                success: function(response) {
+                                    if (response.data) {
+                                        window.location.href = response.data;
+                                    } else {
+                                        swal("Lỗi", "Không thể chuyển hướng đến VNPAY", "error");
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    console.error("Error: " + error);
+                                    swal("Lỗi", "Có lỗi xảy ra khi xử lý yêu cầu thanh toán.", "error");
+                                }
+                            });
+                            } else if (selectedPayment === 'VIETTEL') {
+                                $.ajax({
+                                url: "{{ route('methods.viettel') }}",
+                                method: 'POST',
+                                data: data,
+                                success: function(response) {
+                                    if (response.data) {
+                                        window.location.href = response.data;
+                                    } else {
+                                        swal("Lỗi", "Không thể chuyển hướng đến VNPAY", "error");
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    console.error("Error: " + error);
+                                    swal("Lỗi", "Có lỗi xảy ra khi xử lý yêu cầu thanh toán.", "error");
+                                }
+                            });
+                            } else {
+                                swal("Lỗi", "Phương thức thanh toán không hợp lệ", "error");
+                            }
                         } else {
                             swal("Hủy", "Đã hủy", "error");
                         }
-
-                    });
-
-
-
+                    }
+                );
             });
         });
     </script>
+        
 {{-- Tính tiền --}}
 <script>
     var appliedVoucher = @json(Session::get('voucher')) || null; // Lưu thông tin voucher vào biến toàn cục từ server
-
+    if(isset(nearestDeparture)){
+        var maxQuantity = $nearestDeparture->quantity 
+    }else{
+        var maxQuantity ='null';
+    }
+    
+    
     function calculateTotal() {
         var adultPrice = parseFloat(document.getElementById('nguoi_lon').dataset.price) || 0;
         var childPrice = parseFloat(document.getElementById('tre_em').dataset.price) || 0;
@@ -700,6 +779,24 @@
         var numToddlers = parseInt(document.getElementById('tre_nho').value) || 0;
         var numInfants = parseInt(document.getElementById('so_sinh').value) || 0;
 
+        var totalPeople = numAdults + numChildren + numToddlers + numInfants;
+        if (maxQuantity !== null && totalPeople > maxQuantity) {
+            alert('Số lượng người vượt quá số chỗ còn lại!');
+            // Đặt lại giá trị về giới hạn
+            if (totalPeople - maxQuantity > 0) {
+                var excessPeople = totalPeople - maxQuantity;
+                if (document.activeElement.id === 'nguoi_lon') {
+                    document.getElementById('nguoi_lon').value = numAdults - excessPeople;
+                } else if (document.activeElement.id === 'tre_em') {
+                    document.getElementById('tre_em').value = numChildren - excessPeople;
+                } else if (document.activeElement.id === 'tre_nho') {
+                    document.getElementById('tre_nho').value = numToddlers - excessPeople;
+                } else if (document.activeElement.id === 'so_sinh') {
+                    document.getElementById('so_sinh').value = numInfants - excessPeople;
+                }
+            }
+            return;
+        }
         var totalPrice = (numAdults * adultPrice) + (numChildren * childPrice) + (numToddlers * toddlerPrice) + (numInfants * infantPrice);
 
         // Hiển thị tổng giá ban đầu
@@ -736,14 +833,15 @@
     // Tính toán giá trị ban đầu khi trang được tải
     calculateTotal();
 </script>
+{{-- Tính tiền 1--}}
 
 
 {{-- Check voucher --}}
 <script>
     $(document).ready(function() {
-        $('#applyVoucher').click(function(event) {
+        $('.applyVoucher').click(function(event) {
             event.preventDefault(); // Ngăn hành động mặc định của nút
-            var voucherCode = $('#voucher').val();
+            var voucherCode = $('.voucher').val();
             var _token = $('input[name="_token"]').val(); // Đảm bảo rằng có một trường ẩn với tên _token trong form
 
             $.ajax({
@@ -827,22 +925,40 @@
 </script>
 {{-- Hiển thị mô tả phương thức thanh toán --}}
 <script>
-    const paymentOptions = document.querySelectorAll('input[name="payment"]');
-    paymentOptions.forEach(option => {
-        option.addEventListener('change', function() {
-            const paymentDescriptions = document.querySelectorAll('.payment_description');
-            paymentDescriptions.forEach(desc => {
-                desc.style.display = 'none';
-            });
+    document.addEventListener('DOMContentLoaded', () => {
+        const paymentOptions = document.querySelectorAll('input.payment-option');
+        paymentOptions.forEach(option => {
+            option.addEventListener('change', function() {
+                const paymentDescriptions = document.querySelectorAll('.payment_description');
+                paymentDescriptions.forEach(desc => {
+                    desc.style.display = 'none';
+                });
 
-            const selectedDescription = this.parentElement.querySelector('.payment_description');
-            if (selectedDescription) {
-                selectedDescription.style.display = 'block';
-            }
+                const selectedDescription = this.parentElement.querySelector('.payment_description');
+                if (selectedDescription) {
+                    selectedDescription.style.display = 'block';
+                }
+            });
         });
     });
 </script>
-  
+
+
+{{-- iput min=0 --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('input[type="number"]');
+    
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            if (this.value < 0) {
+                this.value = 0;
+            }
+        });
+    });
+});
+
+</script>
 
 <style>
     .booking-2 {

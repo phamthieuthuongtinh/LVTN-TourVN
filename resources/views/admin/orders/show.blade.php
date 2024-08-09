@@ -55,10 +55,12 @@
                   <tr>
                     <th>Mã đơn</th>
                     <th>Mã tour</th>
+                    <th>Tên tour</th>
                     <th>Ngày khởi hành</th>
                     <th>Voucher</th>
-                    <th>Số người</th>
                     <th>Ghi chú</th>
+                    <th>Số người</th>
+                 
                   </tr>
                   </thead>
                   <tbody>
@@ -67,20 +69,22 @@
                         
                         <td>{{ $orderdetails->order_code}}</td>
                         <td>{{ $tour->tour_code}}</td>
+                        <td>{{ $tour->title}}</td>
                         <td>{{ $orderdetails->departure_date}}</td>
                         <td>{{$orderdetails->voucher}}</td>
+                        <td>{{$orderdetails->note}}</td>
                         <td>Người lớn: {{$orderdetails->nguoi_lon}} x  {{number_format($orderdetails->tour->price)}}đ<br>
                             Trẻ em: {{$orderdetails->tre_em}} x {{number_format($orderdetails->tour->price_treem)}}đ<br>
                             Trẻ nhỏ: {{$orderdetails->tre_nho}} x {{number_format($orderdetails->tour->price_trenho)}}đ<br>
                             Sơ sinh: {{$orderdetails->so_sinh}} x {{number_format($orderdetails->tour->price_sosinh)}}đ
                         </td>
-                        <td>{{$orderdetails->note}}</td>
+                       
                         
                         
                     </tr>
                     <tr style="text-align: end">
                         
-                        <td  colspan="5">Tổng phí: 
+                        <td  colspan="7">Tổng phí: 
                             @php
                             $total=($orderdetails->tour->price * $orderdetails->nguoi_lon) + ($orderdetails->tour->price_treem * $orderdetails->tre_em) + ($orderdetails->tour->price_trenho * $orderdetails->tre_nho) + ($orderdetails->tour->price_sosinh * $orderdetails->so_sinh);
                             echo(number_format($total));
@@ -118,6 +122,44 @@
                             @endphp
                             đ
                         </td>
+                    </tr>
+                    <tr>
+                      <td colspan="5"></td>
+                      <td colspan="2">
+                       
+                          @if($order->order_status==1)
+                          <form>
+                            @csrf
+                            <div class="custom-select-wrapper" >
+                              <select class="form-control custom-select order_details">
+                                {{-- <option value="">---Trạng thái đơn hàng---</option> --}}
+                                <option id="{{$order->order_id}}" selected value="1">Đang xử lý </option>
+                                <option id="{{$order->order_id}}" value="2">Đã thanh toán</option>
+
+                              </select>
+                              
+                            </div>
+                            <input type="hidden" name="order_id" value="{{$order->order_id}}">
+                              <input type="hidden" name="orderdetail_id" value="{{$orderdetails->orderdetails_id}}">
+                          </form>
+                          @elseif($order->order_status==2)
+                          <form>
+                            @csrf
+                            <div class="custom-select-wrapper ">
+                              <select class="form-control custom-select order_details">
+                                {{-- <option value="">---Trạng thái đơn hàng---</option> --}}
+                                <option id="{{$order->order_id}}" value="1">Đang xử lý </option>
+                                <option id="{{$order->order_id}}" selected value="2">Đã thanh toán</option>
+
+                              </select>
+                              <input type="hidden" name="order_id" value="{{$order->order_id}}">
+                              <input type="hidden" name="orderdetail_id" value="{{$orderdetails->orderdetails_id}}">
+                            </div>
+                          </form>
+
+                          @endif
+                        
+                      </td>
                     </tr>
                   </tbody>
                 </table>

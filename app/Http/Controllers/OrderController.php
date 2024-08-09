@@ -6,10 +6,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use App\Models\Order;
 use App\Models\Customer;
+use App\Models\Departure;
 use App\Models\Orderdetail;
 use App\Models\Voucher;
+use App\Models\Statistical;
 use App\Models\Tour;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+
+
 class OrderController extends Controller
 {
     /**
@@ -17,7 +22,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders=Order::with('customer')->Orderby('order_id','DESC')->get();   
+        $orders=Order::with('customer')->where('order_status','!=',0)->Orderby('order_status','ASC')->get();   
         return view('admin.orders.index',compact('orders'));
     }
 
@@ -74,7 +79,11 @@ class OrderController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $order=Order::find($id);
+        $order->order_status=0;
+        $order->save();
+        toastr()->success('Xóa đơn thành công!');
+        return redirect()->back();
     }
     public function confirm_order(Request $request)
     {
@@ -88,9 +97,11 @@ class OrderController extends Controller
         $order->customer_id = Session::get('customer_id');
         $order->order_status = 1;
         $order->order_code = $checkout_code;
+        
         date_default_timezone_set('Asia/Ho_Chi_Minh');
         $order_date = Carbon::now('Asia/Ho_Chi_Minh')->format('Y-m-d');
         $order->order_date = $order_date;
+        $order->payment_method = $data['payment_method'];
         $order->save();
 
          
@@ -111,4 +122,136 @@ class OrderController extends Controller
 
         Session::forget('voucher');
     }
+    public function update_quantity(Request $request)
+    {
+        $order=Order::find($request->order_id);
+        $order_status = $request->order_status;
+        $order->order_status = $order_status;
+        $order->save();
+
+        $statistic = Statistical::where('order_date', $order->order_date)->get();
+        if ($statistic) {
+            $statistic_count = $statistic->count();
+        } else {
+            $statistic_count = 0;
+        }
+        $order_detail = Orderdetail::where('orderdetails_id',$request->orderdetails_id)->first();
+        $departure = Departure::where('tour_id',$order_detail->tour_id)->where('departure_date',$order_detail->departure_date)->first();
+        // Giá tour cho từng loại khách hàng
+        $tour = Tour::where('id',$order_detail->tour_id)->first();
+        $price_adult = $tour->price;
+        $price_child = $tour->price_treem;
+        $price_infant = $tour->price_trenho;
+        $price_newborn = $tour->price_sosinh;
+        $voucher = null;
+        if($order_detail->voucher !== null){
+            $voucher=Voucher::where('voucher_code',$order_detail->voucher)->first();
+        }
+        if($order_status==2){
+            $total_order = 0;
+            $sales = 0;
+            $profit = 0;
+            $now = Carbon::now('Asia/Ho_Chi_Minh')->toDateString();
+            //cập nhật số lượng người
+            $update_quantity= $order_detail->nguoi_lon + $order_detail->tre_em + $order_detail->tre_nho + $order_detail->so_sinh;
+            $departure->quantity= $departure->quantity-$update_quantity;
+            $departure->save();
+            //tính toán lợi nhuận
+            $total_order +=1;
+            // Tính doanh thu từ từng loại khách hàng
+            $revenue_adult = $order_detail->nguoi_lon * $price_adult;
+            $revenue_child = $order_detail->tre_em * $price_child;
+            $revenue_infant = $order_detail->tre_nho * $price_infant;
+            $revenue_newborn = $order_detail->so_sinh * $price_newborn;
+            $sales= $revenue_adult + $revenue_child + $revenue_infant + $revenue_newborn;
+            if($voucher){
+                if($voucher->voucher_condition==1){
+                    $sales=$sales-$voucher->voucher_number;
+                }
+                else{
+                    $sales=$sales-($sales*$voucher->voucher_number/100);
+                }
+            }
+            //Tính chi phí
+            $desired_profit_margin = 0.30; // 30% lợi nhuận
+            $total_cost = $sales - ($sales * $desired_profit_margin);
+            //Tính lợi nhuận
+            $profit = $sales - $total_cost;
+
+            //Lưu statistical
+            if ($statistic_count > 0) {
+                $statistic_update = Statistical::where('order_date', $order->order_date)->first();
+                $statistic_update->sales = $statistic_update->sales + $sales;
+                $statistic_update->profit = $statistic_update->profit + $profit;
+                $statistic_update->quantity = $statistic_update->quantity + $update_quantity;
+                $statistic_update->total_order = $statistic_update->total_order + $total_order;
+                $statistic_update->save();
+            } else {
+                $statistic_new = new Statistical();
+                $statistic_new->order_date = $order->order_date;
+                $statistic_new->sales = $sales;
+                $statistic_new->profit = $profit;
+                $statistic_new->quantity = $update_quantity;
+                $statistic_new->total_order = $total_order;
+                $statistic_new->save();
+            }
+            
+        }
+        elseif($order_status==1){
+             //cập nhật số lượng người
+            $update_quantity= $order_detail->nguoi_lon + $order_detail->tre_em + $order_detail->tre_nho + $order_detail->so_sinh;
+            $departure->quantity= $departure->quantity +$update_quantity;
+            $departure->save();
+
+            $total_order = 0;
+            $sales = 0;
+            $profit = 0;
+          
+            $now = Carbon::now('Asia/Ho_Chi_Minh')->toDateString();
+
+            //tính toán lợi nhuận
+            $total_order +=1;
+
+            // Tính doanh thu từ từng loại khách hàng
+            $revenue_adult = $order_detail->nguoi_lon * $price_adult;
+            $revenue_child = $order_detail->tre_em * $price_child;
+            $revenue_infant = $order_detail->tre_nho * $price_infant;
+            $revenue_newborn = $order_detail->so_sinh * $price_newborn;
+            $sales= $revenue_adult + $revenue_child + $revenue_infant + $revenue_newborn;
+            if($voucher){
+                if($voucher->voucher_condition==1){
+                    $sales=$sales-$voucher->voucher_number;
+                }
+                else{
+                    $sales=$sales-($sales*$voucher->voucher_number/100);
+                }
+            }
+
+            //Tính chi phí
+            $desired_profit_margin = 0.30; // 30% lợi nhuận
+            $total_cost = $sales - ($sales * $desired_profit_margin);
+            //Tính lợi nhuận
+            $profit = $sales - $total_cost;
+            //Lưu lợi nhuận
+            if ($statistic_count > 0) {
+                $statistic_update = Statistical::where('order_date', $order->order_date)->first();
+                $statistic_update->sales = $statistic_update->sales - $sales;
+                $statistic_update->profit = $statistic_update->profit - $profit;
+                $statistic_update->quantity = $statistic_update->quantity - $update_quantity;
+                $statistic_update->total_order = $statistic_update->total_order - $total_order;
+                $statistic_update->save();
+
+                if ($statistic_update->sales == 0) {
+                    $statistic_update->delete();
+                }
+            }
+        }
+        
+       
+
+        
+    
+        return response()->json(['success' => 'Cập nhật trạng thái thành công!']);
+    }
+    
 }

@@ -11,8 +11,11 @@ class Tour extends Model
     public function category(){
         return $this->belongsTo(Category::class);
     }
+    public function user(){
+        return $this->belongsTo(User::class, 'business_id', 'id');
+    }
     public function departures()
-{
-    return $this->hasMany(Departure::class);
-}
+    {
+        return $this->hasMany(Departure::class);
+    }
 }

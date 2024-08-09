@@ -27,13 +27,15 @@
                 </div>
               </div>
               <div class="card-body table-responsive p-0">
-              <table class="table table-striped table-valign-middle" id="myTable">
+                <table class="table table-striped table-valign-middle" id="myTable">
                   <thead>
                   <tr>
                     <th>#</th>
                     <th>Mã đơn</th>
                     <th>Người đặt</th>
                     <th>Ngày đặt</th>
+                    <th>Phương thức TT</th>
+                    <th>Trạng thái</th>
                     <th>Thao tác</th>
                   </tr>
                   </thead>
@@ -54,10 +56,21 @@
                         <td>{{ $ord->order_code}}</td>
                         <td>{{ $ord->customer->customer_name}}</td>
                         <td>{{$ord->order_date}}</td>
+                        <td>{{$ord->payment_method}}</td>
+                        <td>
+                          @if ($ord->order_status==1)
+                              Chưa thanh toán
+                          @else
+                              Đã thanh toán
+                          @endif
+                          
+                          
+                        </td>
+                        
                         <td>
                             @if($ord->order_status==1)
                             <a href="{{route('orders.show',[$ord->order_id])}}" class="btn btn-warning" > 
-                              Chi tiết
+                              Cập nhật
                            </a>
                            <br>
                            <br>
@@ -67,11 +80,8 @@
                                <input type="submit" class="btn btn-danger" value="Xóa">
                             </form>
                             @else
-                            <form method="POST" onsubmit="return confirm('Bạn có chắc khôi phục tour này?');" action="{{route('orders.destroy',[$ord->order_id])}}">
-                              @method('DELETE')
-                              @csrf
-                             <input type="submit" class="btn btn-success" value="Khôi phục">
-                          </form>
+                            <a href="{{route('orders.show',[$ord->order_id])}}" class="btn btn-success" > 
+                              Xem
                             @endif
                         </td>
                     </tr>

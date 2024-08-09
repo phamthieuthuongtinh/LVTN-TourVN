@@ -54,7 +54,7 @@ $tabActive = 'home'; // Default active tab
                                 <p class="mb-0"><i class="fa fa-hotel text-primary me-2"></i>Phòng khách sạn: Có</p>
                             </div>
                             <div class="col-sm-6">
-                                <p class="mb-0"><i class="fa fa-bell text-primary me-2"></i>Ưu đãi dành cho gói trên 5 người</p>
+                                <p class="mb-0"><i class="fa fa-building text-primary me-2"></i>Thuộc công ty: {{$tour->user->name}}</p>
                             </div>
                             <div class="text-center">
                                 <h6 class="section-title text-center text-primary text-uppercase">các ngày khởi hành khác</h6>  
@@ -122,11 +122,16 @@ $tabActive = 'home'; // Default active tab
                                 <div class="row">
                                 <div class="col-xs-12 col-md-6">
                                     <div class="tit-service-attach">Giá dịch vụ bao gồm</div>
-                                    {!!$service->include!!}
+                                    @if (isset($service->include))
+                                        {!!$service->include!!}
+                                    @endif
+                                    
                                 </div>
                                 <div class="col-xs-12 col-md-6">
                                     <div class="tit-service-attach">Giá dịch vụ không bao gồm</div>
+                                    @if (isset($service->not_include))
                                     {!!$service->not_include!!}
+                                @endif
                                 </div>
                                 </div>
                             </div>
@@ -194,7 +199,7 @@ $tabActive = 'home'; // Default active tab
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-floating">
-                                                    <input type="number" class="form-control nguoi_lon" id="nguoi_lon" placeholder="0" value="1" data-price="{{ $tour->price }}">
+                                                    <input type="number" class="form-control nguoi_lon" id="nguoi_lon" min="1" placeholder="0" value="1" data-price="{{ $tour->price }}">
                                                     <label for="nguoi_lon">Số người lớn</label>
                                                 </div>
                                             </div>
@@ -244,11 +249,11 @@ $tabActive = 'home'; // Default active tab
                                                     @csrf
                                                     <div class="col-12" style="display: flex">
                                                         <div class="form-floating col-6">
-                                                            <input class="form-control voucher" placeholder="Mã voucher" name="voucher_code" id="voucher">
+                                                            <input class="form-control voucher" placeholder="Mã voucher" name="voucher_code" >
                                                             <label for="voucher">Mã voucher</label>
                                                         </div>
                                                         <div class="col-2">
-                                                            <button type="button" class="btn btn-warning" id="applyVoucher">Sử dụng</button>
+                                                            <button type="button" class="btn btn-warning applyVoucher">Sử dụng</button>
                                                         </div>
                                                     </div>
                                                     <p style="color: #FF0000; margin-top:5px;">(*) Sau khi nhập mã voucher, vui lòng nhấn vào nút sử dụng để mã có hiệu lực.</p>
@@ -269,11 +274,11 @@ $tabActive = 'home'; // Default active tab
                                                 <h6 class="section-title text-center text-primary text-uppercase">Phương thức thanh toán</h6>
                                             </div>
                                             <div class="col-md-6">
-                                                <input type="radio" name="payment" id="payment_cod" value="COD" checked="">
+                                                <input type="radio" class="payment-option" name="payment" id="payment_cod" value="COD" checked>
                                                 <label for="payment_cod">Thanh toán tại quầy Du Lịch Việt</label>
                                             </div>
                                             <div class="col-md-6">
-                                                <input type="radio" name="payment" id="payment_bank" value="BANK">
+                                                <input type="radio" class="payment-option" name="payment" id="payment_bank" value="BANK">
                                                 <label for="payment_bank">Thanh toán chuyển khoản qua ngân hàng</label>
                                                 <div class="payment_description" style="display: none;">
                                                     <p>Quý khách chuyển khoản qua ngân hàng sau:<br>
@@ -285,7 +290,7 @@ $tabActive = 'home'; // Default active tab
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 col-md-6">
-                                                <input type="radio" name="payment" id="payment_zalopay" value="ZALOPAY">
+                                                <input type="radio" class="payment-option" name="payment" id="payment_zalopay" value="ZALOPAY">
                                                 <label for="payment_zalopay">Thanh toán qua ZaloPay</label>
                                                 <div class="payment_description" style="display: none;">
                                                     <p>Nhập mã <strong>CHOIVUI</strong> giảm đến 2,500,000 VNĐ</p>
@@ -302,7 +307,7 @@ $tabActive = 'home'; // Default active tab
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 col-md-6">
-                                                <input type="radio" name="payment" id="payment_vnpay" value="VNPAY">
+                                                <input type="radio" class="payment-option" name="payment" id="payment_vnpay" value="VNPAY">
                                                 <label for="payment_vnpay">Thanh toán qua VNPAY</label>
                                                 <div class="payment_description" style="display: none;">
                                                     <p>Mức thanh toán phí cọc sẽ giới hạn không quá 10,000,000 đ. Cám ơn Quý khách.</p>
@@ -310,19 +315,19 @@ $tabActive = 'home'; // Default active tab
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 col-md-6">
-                                                <input type="radio" name="payment" id="payment_momo" value="MOMO">
+                                                <input type="radio" class="payment-option" name="payment" id="payment_momo" value="MOMO">
                                                 <label for="payment_momo">Thanh toán qua ví MoMo</label>
                                                 <div class="payment_description" style="display: none;">
                                                     <p><strong><i class="fa fa-hand-o-right"></i> <a href="https://dulichviet.com.vn/tin-tuc/dieu-khoan-dieu-kien" target="_blank">Xem thêm điều khoản điều kiện phí thanh toán.</a></strong></p>
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 col-md-6">
-                                                <input type="radio" name="payment" id="payment_viettel" value="VIETTEL">
+                                                <input type="radio" class="payment-option" name="payment" id="payment_viettel" value="VIETTEL">
                                                 <label for="payment_viettel">Thanh toán qua Viettel Money</label>
                                                 <div class="payment_description" style="display: block;">
                                                     <p><strong><i class="fa fa-hand-o-right"></i> <a href="https://dulichviet.com.vn/tin-tuc/dieu-khoan-dieu-kien" target="_blank">Xem thêm điều khoản điều kiện phí thanh toán.</a></strong></p>
                                                 </div>
-                                            </div>
+                                            </div>                                            
                                             <div class="clearfix"></div>
                                             <p style="text-align:center;">Bằng việc tiếp tục, bạn chấp nhận đồng ý với chính sách/điều khoản như trên.</p>
                                             <div style="display: flex;justify-content: center;align-items: center;" class="col-12">
@@ -470,7 +475,7 @@ $tabActive = 'home'; // Default active tab
 
         <!-- Cột phải start -->
         <div class="container col-md-3 col-xs-12 wow zoomIn">
-            <div class="w100 fl top-15 box-cldl">
+            {{-- <div class="w100 fl top-15 box-cldl">
                 <div class="w100 fl tit-child-larg">
                     <h2>Cẩm nang du lịch</h2>
                 </div>
@@ -488,7 +493,7 @@ $tabActive = 'home'; // Default active tab
                     <li><i class="fa fa-arrow-right text-primary me-2"></i><a href="https://vietnamtravel.net.vn/vi/ct/91-kham-pha-thien-nhien-tuoi-dep-o-go-gang-tp-vung-tau.html">Khám phá thiên nhiên tươi đẹp ở Gò Găng – TP. Vũng Tàu</a></li>
                 </ul>
             </div>
-            <br>
+            <br> --}}
             <div class="w100 fl box-lst-tour-sidebar">   
                 <div class="w100 fl tit-child-larg">
                     <h2>Tour Liên Quan</h2>
@@ -496,146 +501,47 @@ $tabActive = 'home'; // Default active tab
                 <hr>
                 <div class="clear"></div>
                 <ul class="ul-lst-t-right">
-                    <li>
-                        <div class="wow zoomIn" data-wow-delay="0.1s">
-                            <div class="package-item">
-                                <div class="overflow-hidden">
-                                    <img class="img-fluid" src="{{asset('frontend/img/package-1.jpg')}}" alt="">
-                                </div>
-                                <div class="d-flex border-bottom">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-map-marker-alt text-primary me-2"></i>Đảo Wibu</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-calendar-alt text-primary me-2"></i>3 ngày</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-users text-primary me-2"></i>10 người</small>
-                                     
-                                </div>
-                                <div class="d-flex border-bottom">
-                                  <small class="flex-fill text-center border-end py-2"><i class="fa fa-bell text-primary me-2"></i>Khuyến mãi 200K cho nhóm khách 5 người trở lên</small>
-                                 
-                                   
-                              </div>
-                                <div class="text-center p-4">
-                                    <h3 class="mb-0">3.000.000 VNĐ</h3>
-                                    <div class="mb-3">
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
+                    @foreach ($relate as $key =>$re )
+                        @if ($re->id!=$tour->id)
+
+                        <li>
+                            <div class="wow zoomIn" data-wow-delay="0.1s">
+                                <div class="package-item">
+                                    <div class="overflow-hidden">
+                                        <img class="img-fluid" src="{{ asset('upload/tours/' . $re->image) }}" alt="">
                                     </div>
-                                    <p>Tour Hot nhất Hè 2024 Nhật Bản - Đảo Wibu (Xứ sở dành cho wibu)</p>
-                                    <div class="d-flex justify-content-center mb-2">
-                                        <a href="{{route('chi-tiet-tour',['du-lich-dao-wibu-̀53654.html'])}}" class="btn btn-sm btn-primary px-3 border-end" style="border-radius: 30px 0 0 30px;">Chi tiết</a>
-                                        <a href="#" class="btn btn-sm btn-primary px-3" style="border-radius: 0 30px 30px 0;">Đặt ngay</a>
+                                    <div class="d-flex border-bottom">
+                                        <small class="flex-fill text-center border-end py-2"><i class="fa fa-map-marker-alt text-primary me-2"></i>{{ $re->category->title }}</small>
+                                        <small class="flex-fill text-center border-end py-2"><i class="fa fa-calendar-alt text-primary me-2"></i>{{ $re->so_ngay }}{{ $re->so_dem }}</small>
+                                        <small class="flex-fill text-center py-2"><i class="fa fa-users text-primary me-2"></i></small>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="wow zoomIn" data-wow-delay="0.1s">
-                            <div class="package-item">
-                                <div class="overflow-hidden">
-                                    <img class="img-fluid" src="{{asset('frontend/img/package-1.jpg')}}" alt="">
-                                </div>
-                                <div class="d-flex border-bottom">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-map-marker-alt text-primary me-2"></i>Đảo Wibu</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-calendar-alt text-primary me-2"></i>3 ngày</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-users text-primary me-2"></i>10 người</small>
-                                     
-                                </div>
-                                <div class="d-flex border-bottom">
-                                  <small class="flex-fill text-center border-end py-2"><i class="fa fa-bell text-primary me-2"></i>Khuyến mãi 200K cho nhóm khách 5 người trở lên</small>
-                                 
-                                   
-                              </div>
-                                <div class="text-center p-4">
-                                    <h3 class="mb-0">3.000.000 VNĐ</h3>
-                                    <div class="mb-3">
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
+                                    <div class="d-flex border-bottom">
+                                        <small class="flex-fill text-center border-end py-2"><i class="fa fa-bell text-primary me-2"></i>Điểm xuất phát: {{ $re->tour_from }}</small>
                                     </div>
-                                    <p>Tour Hot nhất Hè 2024 Nhật Bản - Đảo Wibu (Xứ sở dành cho wibu)</p>
-                                    <div class="d-flex justify-content-center mb-2">
-                                        <a href="{{route('chi-tiet-tour',['du-lich-dao-wibu-̀53654.html'])}}" class="btn btn-sm btn-primary px-3 border-end" style="border-radius: 30px 0 0 30px;">Chi tiết</a>
-                                        <a href="#" class="btn btn-sm btn-primary px-3" style="border-radius: 0 30px 30px 0;">Đặt ngay</a>
+                                    <div class="text-center p-4">
+                                        <h3 class="mb-0">{{ number_format($re->price) }}đ</h3>
+                                        <div class="mb-3">
+                                            <small class="fa fa-star text-primary"></small>
+                                            <small class="fa fa-star text-primary"></small>
+                                            <small class="fa fa-star text-primary"></small>
+                                            <small class="fa fa-star text-primary"></small>
+                                            <small class="fa fa-star text-primary"></small>
+                                        </div>
+                                        <p>{{ $re->title }}</p>
+                                        <div class="d-flex justify-content-center mb-2">
+                                            <a href="{{ route('chi-tiet-tour', ['slug' => $re->slug]) }}" class="btn btn-sm btn-primary px-3 border-end" style="border-radius: 30px;">Chi tiết</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="wow zoomIn" data-wow-delay="0.1s">
-                            <div class="package-item">
-                                <div class="overflow-hidden">
-                                    <img class="img-fluid" src="{{asset('frontend/img/package-1.jpg')}}" alt="">
-                                </div>
-                                <div class="d-flex border-bottom">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-map-marker-alt text-primary me-2"></i>Đảo Wibu</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-calendar-alt text-primary me-2"></i>3 ngày</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-users text-primary me-2"></i>10 người</small>
-                                     
-                                </div>
-                                <div class="d-flex border-bottom">
-                                  <small class="flex-fill text-center border-end py-2"><i class="fa fa-bell text-primary me-2"></i>Khuyến mãi 200K cho nhóm khách 5 người trở lên</small>
-                                 
-                                   
-                              </div>
-                                <div class="text-center p-4">
-                                    <h3 class="mb-0">3.000.000 VNĐ</h3>
-                                    <div class="mb-3">
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                    </div>
-                                    <p>Tour Hot nhất Hè 2024 Nhật Bản - Đảo Wibu (Xứ sở dành cho wibu)</p>
-                                    <div class="d-flex justify-content-center mb-2">
-                                        <a href="{{route('chi-tiet-tour',['du-lich-dao-wibu-̀53654.html'])}}" class="btn btn-sm btn-primary px-3 border-end" style="border-radius: 30px 0 0 30px;">Chi tiết</a>
-                                        <a href="#" class="btn btn-sm btn-primary px-3" style="border-radius: 0 30px 30px 0;">Đặt ngay</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="wow zoomIn" data-wow-delay="0.1s">
-                            <div class="package-item">
-                                <div class="overflow-hidden">
-                                    <img class="img-fluid" src="{{asset('frontend/img/package-1.jpg')}}" alt="">
-                                </div>
-                                <div class="d-flex border-bottom">
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-map-marker-alt text-primary me-2"></i>Đảo Wibu</small>
-                                    <small class="flex-fill text-center border-end py-2"><i class="fa fa-calendar-alt text-primary me-2"></i>3 ngày</small>
-                                    <small class="flex-fill text-center py-2"><i class="fa fa-users text-primary me-2"></i>10 người</small>
-                                     
-                                </div>
-                                <div class="d-flex border-bottom">
-                                  <small class="flex-fill text-center border-end py-2"><i class="fa fa-bell text-primary me-2"></i>Khuyến mãi 200K cho nhóm khách 5 người trở lên</small>
-                                 
-                                   
-                              </div>
-                                <div class="text-center p-4">
-                                    <h3 class="mb-0">3.000.000 VNĐ</h3>
-                                    <div class="mb-3">
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                    </div>
-                                    <p>Tour Hot nhất Hè 2024 Nhật Bản - Đảo Wibu (Xứ sở dành cho wibu)</p>
-                                    <div class="d-flex justify-content-center mb-2">
-                                        <a href="{{route('chi-tiet-tour',['du-lich-dao-wibu-̀53654.html'])}}" class="btn btn-sm btn-primary px-3 border-end" style="border-radius: 30px 0 0 30px;">Chi tiết</a>
-                                        <a href="#" class="btn btn-sm btn-primary px-3" style="border-radius: 0 30px 30px 0;">Đặt ngay</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
+                        </li>
+            
+                        <!-- Modal -->
+                       
+                        @endif
+                    @endforeach
+                    
+                 
                 </ul>
             </div>
         </div>
@@ -745,6 +651,8 @@ $tabActive = 'home'; // Default active tab
 
 </script>
 {{-- Mũi tên hiển thị nội dung lịch trình --}}
+
+
 
 <style>
    .nav-tabs .nav-link2.active {

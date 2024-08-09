@@ -4,13 +4,13 @@
         <div class="row">
             <div class="col-md-12 col-xs-12 bx-title-lst-tour text-center">
                 <div class="w100 fl title-tour1 wow fadeInUp">
-                    <h1 style="color: #86B817;font-size: 30px;"> Danh Mục Tour</h1>
+                    <h1 style="color: #86B817;font-size: 30px;"> Danh Mục Tour {{$category->title}} </h1>
                 </div>
                 <div class="row g-4 justify-content-center">
                     @foreach ($tours as $key => $tour)
                     @if ($tour->departures->isNotEmpty())
                         <!-- Modal -->
-                        <div class="modal fade" id="bookingModal_{{ $tour->id }}" tabindex="-1" aria-labelledby="bookingModalLabel_{{ $tour->id }}"
+                        {{-- <div class="modal fade" id="bookingModal_{{ $tour->id }}" tabindex="-1" aria-labelledby="bookingModalLabel_{{ $tour->id }}"
                             aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
@@ -180,12 +180,12 @@
                                                                 <div class="form-floating col-6">
                                                                     <input class="form-control voucher"
                                                                         placeholder="Mã voucher" name="voucher_code"
-                                                                        id="voucher">
+                                                                        >
                                                                     <label for="voucher">Mã voucher</label>
                                                                 </div>
                                                                 <div class="col-2">
-                                                                    <button type="button" class="btn btn-warning"
-                                                                        id="applyVoucher">Sử dụng</button>
+                                                                    <button type="button" class="btn btn-warning applyVoucher"
+                                                                    >Sử dụng</button>
                                                                 </div>
                                                             </div>
                                                             <div class="col-8">
@@ -325,7 +325,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                             <div class="package-item">
                                 <div class="overflow-hidden">
@@ -358,10 +358,10 @@
                                     <div class="d-flex justify-content-center mb-2">
                                         <a href="{{ route('chi-tiet-tour', ['slug' => $tour->slug]) }}"
                                             class="btn btn-sm btn-primary px-3 border-end"
-                                            style="border-radius: 30px 0 0 30px;">Chi tiết</a>
-                                        <a href="#" class="btn btn-sm btn-primary px-3"
+                                            style="border-radius: 30px;">Chi tiết</a>
+                                        {{-- <a href="#" class="btn btn-sm btn-primary px-3"
                                             style="border-radius: 0 30px 30px 0;" data-bs-toggle="modal"
-                                            data-bs-target="#bookingModal_{{ $tour->id }}">Đặt ngay</a>
+                                            data-bs-target="#bookingModal_{{ $tour->id }}">Đặt ngay</a> --}}
                                     </div>
                                 </div>
                             </div>

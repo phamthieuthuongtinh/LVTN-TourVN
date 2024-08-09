@@ -33,19 +33,25 @@
                     <th>#</th>
                     <th>Thư viện</th>
                     <th>Tiêu đề</th>
+                   
                     <th>Danh mục</th>
-                    <th>Giá</th>
+                    @if (Auth::user()->id==1)
+                    <th>Doanh nghiệp</th>
+                    @endif
+                    
+                    <th>Giá tour</th>
                   
-                    <th>Mô tả</th>
-                    <th>Phương tiện</th>
+                    {{-- <th>Mô tả</th>
+                    <th>Phương tiện</th> --}}
                     <th>Hình ảnh</th>
                     <th>Số ngày</th>
                     <th>Số đêm</th>
-                    <th>Nơi đi</th>
-                    <th>Nơi đến</th>
+                    {{-- <th>Nơi đi</th>
+                    <th>Nơi đến</th> --}}
                     <th>Mã tour</th>
-                    <th>Slug</th>
-                    <th>Ngày tạo</th>
+                    <th>Trạng thái</th>
+                    {{-- <th>Slug</th>
+                    <th>Ngày tạo</th> --}}
                     <th>Thao tác</th>
                   </tr>
                   </thead>
@@ -72,6 +78,10 @@
                         </td>
                         <td>{{ substr($tour->title, 0, 20) }}...</td>
                         <td>{{ $tour->category->title}}</td>
+                        @if (Auth::user()->id==1)
+                        <td>{{ $tour->user->name}}</td>
+                        @endif
+                        
                         <td>
                           <p style="color: blue; padding:0px; margin: 0px;">>11 tuổi:</p>
                           {{number_format($tour->price)}}đ
@@ -83,36 +93,81 @@
                           {{number_format($tour->price_sosinh)}}đ
                         </td>
                         
-                        <td>{{ substr($tour->description, 0, 20) }}...</td>
-                        <td>{{$tour->vehicle}}</td>
+                        {{-- <td>{{ substr($tour->description, 0, 20) }}...</td>
+                        <td>{{$tour->vehicle}}</td> --}}
                         <td><img src="{{asset('upload/tours/'.$tour->image)}}" alt="" width=150 height=120></td>
                         <td>{{$tour->so_ngay}}</td>
                         <td>{{$tour->so_dem}}</td>
-                        <td>{{$tour->tour_from}}</td>
-                        <td>{{$tour->tour_to}}</td>
+                        {{-- <td>{{$tour->tour_from}}</td>
+                        <td>{{$tour->tour_to}}</td> --}}
                         <td>{{$tour->tour_code}}</td>
-                        <td>{{ substr($tour->slug, 0, 20) }}...</td>
+                        <td>
+                          @if ($tour->status==1)
+                            Chưa gửi duyệt
+                          @elseif($tour->status==2)
+                            Chờ được duyệt
+                          @elseif($tour->status==3)
+                            Đã được duyệt
+                          @elseif($tour->status==4)
+                            Bị từ chối
+                          @else
+                            Đã bị xóa
+                          @endif
+                          
+                        </td>
+                        {{-- <td>{{ substr($tour->slug, 0, 20) }}...</td>
                       
-                        <td>{{$tour->created_at}}</td>
+                        <td>{{$tour->created_at}}</td> --}}
                         <td>
                             
-                            @if($tour->status==1)
-                            <a href="{{route('tours.edit',[$tour->id])}}" class="btn btn-warning" > 
-                              Sửa
-                           </a>
-                           <br>
-                           <br>
-                            <form method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa tour này?');" action="{{route('tours.destroy',[$tour->id])}}">
-                                @method('DELETE')
+                            @if($tour->status==1 || $tour->status==4)
+                              <a href="{{route('tours.edit',[$tour->id])}}" class="btn btn-warning" > 
+                                Sửa
+                              </a>
+                              <br>
+                              <br>
+                              <form method="POST" action="{{route('tours.guiduyet',[$tour->id])}}">
+                                @method('PATCH')
                                 @csrf
-                               <input type="submit" class="btn btn-danger" value="Xóa">
-                            </form>
+                              <input type="submit" class="btn btn-success" value="Gửi duyệt">
+                              </form>
+                              <br>
+                              <form method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa tour này?');" action="{{route('tours.destroy',[$tour->id])}}">
+                                  @method('DELETE')
+                                  @csrf
+                                <input type="submit" class="btn btn-danger" value="Xóa">
+                              </form>
+                            @elseif($tour->status==2)
+                           
+                               
+                              <form method="POST" action="{{route('tours.guiduyet',[$tour->id])}}">
+                                @method('PATCH')
+                                @csrf
+                              <input type="submit" class="btn btn-warning" value="Hủy gửi">
+                              </form>
+              
+                            @elseif($tour->status==3)
+                              @if (Auth::user()->id==1)
+                                <form method="POST" action="{{route('tours.duyet',[$tour->id])}}">
+                                  @method('PATCH')
+                                  @csrf
+                                <input type="submit" class="btn btn-warning" value="Bỏ Duyệt">
+                                </form>
+                              @else
+                                <form method="POST" onsubmit="return confirm('Bạn có chắc xóa tour này?');" action="{{route('tours.destroy',[$tour->id])}}">
+                                  @method('DELETE')
+                                  @csrf
+                                <input type="submit" class="btn btn-danger" value="Xóa">
+                                </form>
+                              @endif
+                      
+
                             @else
                             <form method="POST" onsubmit="return confirm('Bạn có chắc khôi phục tour này?');" action="{{route('tours.destroy',[$tour->id])}}">
                               @method('DELETE')
                               @csrf
-                             <input type="submit" class="btn btn-success" value="Khôi phục">
-                          </form>
+                            <input type="submit" class="btn btn-success" value="Khôi phục">
+                            </form>
                             @endif
                         </td>
                     </tr>

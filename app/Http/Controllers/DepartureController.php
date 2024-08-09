@@ -36,6 +36,15 @@ class DepartureController extends Controller
             'departure_date.required'=>'Bạn chưa chọn ngày khởi hành',
             'quantity.required'=>'Bạn chưa nhập số lượng người'
         ]);
+         // Kiểm tra xem ngày khởi hành đã tồn tại cho cùng tour_id hay chưa
+        $departure_isset=Departure::where('tour_id',$data['tour_id'])->first();
+        if($departure_isset){
+             $existingDeparture = Departure::where('tour_id', $data['tour_id']) ->where('departure_date', $data['departure_date']) ->exists();
+             if ($existingDeparture) {
+                return redirect()->back()->withErrors(['departure_date' => 'Ngày khởi hành này đã có']);
+            }
+        }
+
         $departure= new Departure();
         $departure->tour_id=$data['tour_id'];
         $departure->departure_date=$data['departure_date'];
@@ -52,7 +61,7 @@ class DepartureController extends Controller
     public function show(string $id)
     {   
         $tour_id=$id;
-        $departures= Departure::where('tour_id',$id)->orderby('id','DESC')->get();
+        $departures= Departure::where('tour_id',$id)->orderby('departure_date','DESC')->get();
         return view('admin.departures.edit',compact('departures','tour_id'));
     }
 

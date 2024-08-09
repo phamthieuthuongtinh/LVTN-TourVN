@@ -40,7 +40,7 @@ class CategoriesController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|unique:categories|max:255',
-            'description' => 'required|max:220',
+            'description' => 'required',
             'image' => 'required',
             'status' => 'required',
             'category_parent' => 'required',
@@ -68,6 +68,7 @@ class CategoriesController extends Controller
         $category->image= $new_image;
 
         $category->save();
+        toastr()->success('Thêm danh mục thành công!');
         return redirect()->route('categories.index');
     }
 
@@ -96,7 +97,7 @@ class CategoriesController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|max:255',
-            'description' => 'required|max:220',
+            'description' => 'required',
             'category_parent' => 'required',
             'status' => 'required',
         ],[

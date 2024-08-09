@@ -14,5 +14,8 @@ class IndexController extends Controller
     {
         return view('pages.login'); 
     }
-    
+    public function payment_success()
+    {
+        return view('pages.payment_success'); 
+    }
 }

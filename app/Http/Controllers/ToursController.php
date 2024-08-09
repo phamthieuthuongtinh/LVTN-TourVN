@@ -13,7 +13,7 @@ use App\Models\Service;
 use App\Models\Itinerarydetail;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
-
+use Illuminate\Support\Facades\Auth;
 class ToursController extends Controller
 {
 
@@ -21,11 +21,22 @@ class ToursController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $tours=Tour::with('category')->Orderby('status','DESC')->get();
+    {   
+        if(Auth::user()->id!=1){
+            $tours=Tour::with('category')->with('user')->where('business_id',Auth::user()->id)->Orderby('status','DESC')->get();
+        }
+        else{
+            $tours=Tour::with('category')->with('user')->Orderby('status','DESC')->get();
+        }
         return view('admin.tours.index',compact('tours'));
     }
-
+    public function admin_index_tour()
+    {   
+  
+        $tours=Tour::with('category')->with('user')->where('status',2)->orwhere('status',3)->Orderby('status','ASC')->get();
+    
+        return view('admin.tours.admin_index',compact('tours'));
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -43,7 +54,7 @@ class ToursController extends Controller
         $data = $request->validate([
             'title' => 'required|unique:tours|max:255',
             'description' => 'required|max:220',
-            
+           
             'category_id' => 'required',
             'price' => 'required',
             'price_treem' => 'required',
@@ -54,14 +65,14 @@ class ToursController extends Controller
             'tour_to' => 'required',
             'image' => 'required',
             'status' => 'required',
-
+            'business_id' => 'required',
             'so_ngay' => 'required',
             'so_dem' => 'required',
         ],[
             'title.required' => 'Bạn chưa nhập tiêu đề',
             'title.unique' => 'Tiêu đề này đã có',
             'description.required' => 'Bạn chưa nhập mô tả',
-            
+            'tour_cost.required' => 'Bạn chưa nhập chi phí tour',
             'price.required' => 'Bạn chưa nhập giá',
             'vehicle.required' => 'Bạn chưa nhập phương tiện',
             'tour_from.required' => 'Bạn chưa nhập nơi xuất phát',
@@ -76,7 +87,7 @@ class ToursController extends Controller
         $tour = new Tour();
         $tour->title = $data['title'];
         $tour->description = $data['description'];
-        $tour->status = $data['status'];
+        $tour->status = 1;
       
         $tour->category_id = $data['category_id'];
         $tour->price = $data['price'];
@@ -88,7 +99,7 @@ class ToursController extends Controller
         $tour->so_dem = $data['so_dem'];
         $tour->tour_from = $data['tour_from'];
         $tour->tour_to = $data['tour_to'];
-       
+        $tour->business_id = $data['business_id'];
         $tour->slug =  Str::slug($data['title']);
         $tour->tour_code =  rand(0000,9999);
         
@@ -130,7 +141,7 @@ class ToursController extends Controller
         $data = $request->validate([
             'title' => 'required|max:255',
             'description' => 'required|max:220',
-           
+         
             'category_id' => 'required',
             'price' => 'required',
             'price_treem' => 'required',
@@ -141,14 +152,14 @@ class ToursController extends Controller
             'so_dem' => 'required',
             'tour_from' => 'required',
             'tour_to' => 'required',
-           
+            'business_id' => 'required',
             
             'status' => 'required',
         ],[
             'title.required' => 'Bạn chưa nhập tiêu đề',
             'title.unique' => 'Tiêu đề này đã có',
             'description.required' => 'Bạn chưa nhập mô tả',
-           
+           'tour_cost.required' => 'Bạn chưa nhập chi phí tour',
             'price.required' => 'Bạn chưa nhập giá',
             'vehicle.required' => 'Bạn chưa nhập phương tiện',
             'so_ngay.required' => 'Bạn chưa nhập số ngày',
@@ -161,8 +172,8 @@ class ToursController extends Controller
         $tour = Tour::find($id);
         $tour->title = $data['title'];
         $tour->description = $data['description'];
-        $tour->status = $data['status'];
-       
+        $tour->status = 1;
+
         $tour->category_id = $data['category_id'];
         $tour->price = $data['price'];
         $tour->price_treem = $data['price_treem'];
@@ -173,7 +184,7 @@ class ToursController extends Controller
         $tour->so_dem = $data['so_dem'];
         $tour->tour_from = $data['tour_from'];
         $tour->tour_to = $data['tour_to'];
-       
+        $tour->business_id = $data['business_id'];
         $tour->slug =  Str::slug($data['title']);
         $tour->tour_code = $tour->tour_code;
         
@@ -216,7 +227,6 @@ class ToursController extends Controller
             $query->where('status',1)->where('departure_date', '>=', Carbon::today())
                   ->orderBy('departure_date', 'ASC');
         }])->get();
-
         $nearestDeparture = null;
         foreach ($tours as $tour) {
             if ($tour->departures->isNotEmpty()) {
@@ -226,11 +236,12 @@ class ToursController extends Controller
             
         }
 
-        return view('pages.tour',compact('tours','nearestDeparture'));
+        return view('pages.tour',compact('tours','nearestDeparture','category'));
     }
     public function detail_tour($slug){
         
         $tour = Tour::where('slug', $slug)->first();
+        //thông tin dịch vụ, comment, reply, đánh giá, danh sách ngày khởi hành, ngày khởi hành gần nhất của tour
         $service = Service::where('tour_id', $tour->id)->first();
         $comments = Comment::where('comment_tour_id', $tour->id)->where('status', 1)->whereNull('comment_parent_comment')->get();
         $reply=Comment::where('comment_tour_id',$tour->id)->where('status',1)->whereNotNull('comment_parent_comment')->get();
@@ -242,9 +253,23 @@ class ToursController extends Controller
 
 
          // Lấy thông tin lịch trình
-            $itineraries = Itinerary::where('tour_id', $tour->id)
-                ->orderby('day_number', 'ASC')
-                ->get();
+         $itineraries = Itinerary::where('tour_id', $tour->id)->orderby('day_number', 'ASC') ->get();
+
+         // Các tour liên quan      
+        $relate= Tour::where('category_id',$tour->category_id)->with('category')->with(['departures' => function($query) {
+            $query->where('status',1)->where('departure_date', '>=', Carbon::today())
+                  ->orderBy('departure_date', 'ASC');
+        }])->get();
+        //Ngày gần nhất cho tour liên quan
+        foreach ($relate as $relatedTour) {
+            $nearestRelatedDeparture = $relatedTour->departures->filter(function($depart) {
+                return Carbon::parse($depart->departure_date) >= Carbon::today();
+            })->sortBy('departure_date')->first();
+        
+            // Gán ngày khởi hành gần nhất vào một thuộc tính mới
+            $relatedTour->nearest_departure = $nearestRelatedDeparture;
+        }
+       
 
             // Lấy chi tiết từng hoạt động
             // $itineraryDetails = ItineraryDetail::whereIn('ite_id', $itineraries->pluck('id'))
@@ -263,9 +288,50 @@ class ToursController extends Controller
             // });
             // });
 
-        return view('pages.detailtour',compact('tour','departures','nearestDeparture','comments','reply','ratings','itineraries','service'));
+        return view('pages.detailtour',compact('tour','departures','nearestDeparture','comments','reply','ratings','itineraries','service','relate'));
     }
-
+    
+    public function gui_duyet(String $id){
+        $tour=Tour::find($id);
+        if( $tour->status==1 || $tour->status==4){
+            $tour->status=2;
+             $tour->save();
+            toastr()->success('Gửi duyệt thành công!');
+            return redirect()->back();
+        }
+        else{
+            $tour->status=1;
+            $tour->save();
+            toastr()->success('Hủy gửi duyệt thành công!');
+            return redirect()->back();
+        }
+       
+        
+       
+    }
+    public function duyet(String $id){
+        $tour=Tour::find($id);
+        if($tour->status==2){
+            $tour->status=3;
+            $tour->save();
+            toastr()->success('Duyệt thành công!');
+            return redirect()->back();
+        }
+        else{
+            $tour->status=2;
+            $tour->save();
+            toastr()->success('Bỏ duyệt thành công!');
+            return redirect()->back();
+        }
+       
+    }
+    public function tuchoi_duyet(String $id){
+        $tour=Tour::find($id);
+        $tour->status=4;
+        $tour->save();
+        toastr()->success('Duyệt thành công!');
+        return redirect()->back();
+    }
 
     public function manage_departure(){
         $tours=Tour::where('status',1)->orderby('id','desc')->get();

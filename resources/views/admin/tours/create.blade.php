@@ -47,7 +47,10 @@
             <label for="exampleInputPassword1">Nơi đến</label>
             <input type="text" class="form-control" name="tour_to" id="exampleInputPassword1" placeholder="...">
          </div>
-
+         <div class="form-group">
+            <label for="adultPrice">Chi phí tour</label>
+            <input type="text" class="form-control" name="tour_cost" id="tour_cost" placeholder="...">
+         </div>
           <div class="form-group">
             <label for="adultPrice">Giá người lớn</label>
             <input type="text" class="form-control" name="price" id="adultPrice" placeholder="...">
@@ -76,6 +79,7 @@
             <label for="exampleInputPassword1">Số đêm</label>
             <input type="number" class="form-control" name="so_dem" id="so_dem" placeholder="...">
          </div>
+         <input type="hidden" value=" {{Auth::user()->id}}" name="business_id" id="">
          {{-- <div class="form-group">
             <label for="exampleInputPassword1">Tổng thời gian đi</label>
             <input type="text" class="form-control" name="tour_time" id="tour_time" placeholder="...">
@@ -90,10 +94,7 @@
                </div>
             </div>
          </div>
-         <div class="form-check">
-            <input type="checkbox" value="1" name="status" class="form-check-input" id="exampleCheck1">
-            <label class="form-check-label" for="exampleCheck1">Hiển thị</label>
-         </div>
+        
       </div>
       <!-- /.card-body -->
       <div class="card-footer">

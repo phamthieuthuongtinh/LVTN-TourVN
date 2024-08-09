@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Category;
 use App\Models\Banner;
+use App\Models\Statistical;
 use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
@@ -18,6 +19,12 @@ class AppServiceProvider extends ServiceProvider
     public function getBanners(){
         $banners= Banner::orderBy('banner_id','DESC')->get();
         return $banners;
+    }
+    public function getStatistics(){
+        $statistics = Statistical::selectRaw('MONTH(order_date) as month, SUM(sales) as total_sales, SUM(profit) as total_profit')
+        ->groupByRaw('MONTH(order_date)')
+        ->get();
+        return  $statistics;
     }
     /**
      * Register any application services.
@@ -36,7 +43,8 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*',function($view){
             $categories = $this->getCategoriesProduct();
             $banners=$this->getBanners();
-            $view->with('categories',$categories)->with('banners',$banners);
+            $statistics=$this->getStatistics();
+            $view->with('categories',$categories)->with('banners',$banners)->with('statistics',$statistics);
         });
     }
 }

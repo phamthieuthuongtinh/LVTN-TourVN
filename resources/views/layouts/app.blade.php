@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="//cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
   <link href="https://cdn.jsdelivr.net/npm/froala-editor@3.2.6/css/froala_editor.pkgd.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/froala-editor@3.2.6/js/froala_editor.pkgd.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   
 </head>
 <!--
@@ -214,6 +215,7 @@
 <script src="{{asset('backend/dist/js/pages/dashboard3.js')}}"></script>
 <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
 <script src="//cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 {{-- <script src="{{ asset('ckeditor/ckeditor.js') }}"></script> --}}
 <script>
   new FroalaEditor('#editor');
@@ -231,7 +233,14 @@
       extraPlugins: 'uploadimage'
   });
 </script> --}}
-
+<script>
+  $(document).ready(function() {
+      $('#categorySelect').select2({
+          placeholder: 'Chọn danh mục tour',
+          allowClear: true
+      });
+  });
+</script>
 <script>
   $(document).ready(function() {
     
@@ -342,5 +351,194 @@
     })
 </script>
 
+
+{{-- Chuyển đổi trạng thái đã thanh toán <> chưa thanh toán và cập nhật số lượng người còn của tour --}}
+<script type="text/javascript">
+  $(document).ready(function() {
+      $('.order_details').change(function() {
+          var order_status = $(this).val();
+          var form = $(this).closest('form');
+          var order_id = form.find('input[name="order_id"]').val();
+          var orderdetails_id = form.find('input[name="orderdetail_id"]').val();
+          var _token = $('input[name="_token"]').val();
+
+          $.ajax({
+              url: "{{ route('orders.update_quantity') }}",
+              method: 'POST',
+              data: {
+                  _token: _token,
+                  order_status: order_status,
+                  orderdetails_id: orderdetails_id,
+                  order_id: order_id
+              },
+              success: function(data) {
+                  alert("Cập nhật trạng thái thành công!");
+                  location.reload();
+              }
+          });
+      });
+  });
+</script>
+
+{{-- Dashboard --}}
+<script>
+  $(document).ready(function() {
+      // Dữ liệu từ controller
+      var statistics = @json($statistics);
+
+      var labels = [];
+      var salesData = [];
+      var profitData = [];
+
+      statistics.forEach(function(item) {
+          labels.push(item.month);
+          salesData.push(item.total_sales);
+          profitData.push(item.total_profit);
+      });
+
+      var salesChart = new Chart($('#salesChart'), {
+          type: 'bar',
+          data: {
+              labels: labels,
+              datasets: [
+                  {
+                      label: 'Tổng thu',
+                      backgroundColor: '#007bff',
+                      borderColor: '#007bff',
+                      data: salesData
+                  },
+                  {
+                      label: 'Lợi nhuận',
+                      backgroundColor: '#ced4da',
+                      borderColor: '#ced4da',
+                      data: profitData
+                  }
+              ]
+          },
+          options: {
+              maintainAspectRatio: false,
+              tooltips: {
+                  mode: 'index',
+                  intersect: false
+              },
+              hover: {
+                  mode: 'nearest',
+                  intersect: true
+              },
+              legend: {
+                  display: true
+              },
+              scales: {
+                  yAxes: [{
+                      gridLines: {
+                          display: true,
+                          lineWidth: '4px',
+                          color: 'rgba(0, 0, 0, .2)',
+                          zeroLineColor: 'transparent'
+                      },
+                      ticks: {
+                          beginAtZero: true,
+                          callback: function(value) {
+                              if (value >= 1000) {
+                                  value /= 1000;
+                                  value += 'k';
+                              }
+
+                              return 'vnđ ' + value;
+                          }
+                      }
+                  }],
+                  xAxes: [{
+                      display: true,
+                      gridLines: {
+                          display: false
+                      },
+                      ticks: {
+                          beginAtZero: true
+                      }
+                  }]
+              }
+          }
+      });
+
+
+      function updateChartData(labels, salesData, profitData) {
+          salesChart.data.labels = labels;
+          salesChart.data.datasets[0].data = salesData;
+          salesChart.data.datasets[1].data = profitData;
+          salesChart.update();
+      }
+
+      function resetChart() {
+            var defaultLabels = [];
+            var defaultSalesData = [];
+            var defaultProfitData = [];
+
+            statistics.forEach(function(item) {
+                defaultLabels.push(item.month);
+                defaultSalesData.push(item.total_sales);
+                defaultProfitData.push(item.total_profit);
+            });
+
+            updateChartData(defaultLabels, defaultSalesData, defaultProfitData);
+        }
+
+        // Xử lý sự kiện nhấn nút "Làm mới"
+        $('#resetForm').on('click', function() {
+            $('#dateFilterForm')[0].reset(); // Xóa dữ liệu trong form
+            resetChart(); // Làm mới biểu đồ với dữ liệu mặc định
+        });
+      // Xử lý sự kiện thay đổi bộ lọc
+      $('#dateFilterForm').on('submit', function(event) {
+          event.preventDefault(); // Ngăn chặn gửi form theo cách truyền thống
+
+          var startDate = $('#startDate').val();
+          var endDate = $('#endDate').val();
+          var _token = $('input[name="_token"]').val();
+
+          if (startDate && endDate) {
+              $.ajax({
+                  url: "{{ route('dashboard.filter_dashboard') }}",
+                  method: "POST",
+                  dataType: "JSON",
+                  data: {
+                      startDate: startDate,
+                      endDate: endDate,
+                      _token: _token
+                  },
+                  success: function(data) {
+                      // Kiểm tra dữ liệu nhận được từ AJAX
+                      console.log('Dữ liệu nhận được:', data);
+
+                      // Cập nhật dữ liệu cho biểu đồ
+                      updateChartData(data.labels, data.salesData, data.profitData);
+                  },
+                  error: function(xhr, status, error) {
+                      console.error('Lỗi khi lấy dữ liệu:', status, error);
+                  }
+              });
+          } else {
+              alert('Vui lòng nhập cả ngày bắt đầu và ngày kết thúc.');
+          }
+      });
+      
+  });
+</script>
+
+
+{{-- iput min=0 --}}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+  const inputs = document.querySelectorAll('input[type="number"]');
+  
+  inputs.forEach(input => {
+      input.addEventListener('input', function() {
+          if (this.value <script 0) {
+              this.value = 0;
+          }
+      });
+  });
+  });
+</script>
 </body>
 </html>
