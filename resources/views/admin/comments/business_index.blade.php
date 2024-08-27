@@ -45,7 +45,7 @@
                         }
                     </style>
                     <tbody>
-                        @foreach ($comments as $key => $com)
+                        @foreach ($comments_business as $key => $com)
                             <tr class="{{ $com->status == 2 ? 'deleted-com' : '' }}">
                                 <td>{{ $key }}</td>
                                 <td>{{ $com->tour->title }}</td>
@@ -56,9 +56,8 @@
                                 <td>
                                     <div class="btn-group">
                                         @if ($com->status == 0)
-                                            <!-- Duyệt -->
                                             <form method="POST" onsubmit="return confirm('Bạn có chắc muốn duyệt?');"
-                                                action="{{ route('comment.update', [$com->comment_id]) }}" class="d-inline">
+                                                action="{{ route('comment.update', [$com->comment_id]) }}">
                                                 @method('PATCH')
                                                 @csrf
                                                 <button type="submit" class="btn btn-success" title="Duyệt">
@@ -66,10 +65,8 @@
                                                 </button>
                                             </form>
                                             <br>
-                                            <!-- Xóa -->
                                             <form method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa?');"
-                                                action="{{ route('comment.destroy', [$com->comment_id]) }}"
-                                                class="d-inline">
+                                                action="{{ route('comment.destroy', [$com->comment_id]) }}">
                                                 @method('DELETE')
                                                 @csrf
                                                 <button type="submit" class="btn btn-danger" title="Xóa">
@@ -77,9 +74,8 @@
                                                 </button>
                                             </form>
                                         @elseif($com->status == 1)
-                                            <!-- Bỏ duyệt -->
                                             <form method="POST" onsubmit="return confirm('Bạn có chắc muốn bỏ duyệt?');"
-                                                action="{{ route('comment.update', [$com->comment_id]) }}" class="d-inline">
+                                                action="{{ route('comment.update', [$com->comment_id]) }}">
                                                 @method('PATCH')
                                                 @csrf
                                                 <button type="submit" class="btn btn-warning" title="Bỏ duyệt">
@@ -87,10 +83,8 @@
                                                 </button>
                                             </form>
                                             <br>
-                                            <!-- Xóa -->
                                             <form method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa?');"
-                                                action="{{ route('comment.destroy', [$com->comment_id]) }}"
-                                                class="d-inline">
+                                                action="{{ route('comment.destroy', [$com->comment_id]) }}">
                                                 @method('DELETE')
                                                 @csrf
                                                 <button type="submit" class="btn btn-danger" title="Xóa">
@@ -98,11 +92,9 @@
                                                 </button>
                                             </form>
                                         @else
-                                            <!-- Khôi phục -->
                                             <form method="POST" onsubmit="return confirm('Bạn có chắc muốn khôi phục?');"
-                                                action="{{ route('comment.destroy', [$com->comment_id]) }}"
-                                                class="d-inline">
-                                                @method('PATCH')
+                                                action="{{ route('comment.destroy', [$com->comment_id]) }}">
+                                                @method('DELETE')
                                                 @csrf
                                                 <button type="submit" class="btn btn-warning" title="Khôi phục">
                                                     <i class="fa fa-recycle"></i>
@@ -110,9 +102,7 @@
                                             </form>
                                         @endif
                                     </div>
-
                                 </td>
-
                             </tr>
                         @endforeach
                     </tbody>
@@ -121,9 +111,9 @@
         </div>
     </div>
     <style>
-        .btn-group .btn {
-            margin-right: 5px;
-            /* Điều chỉnh khoảng cách giữa các nút */
-        }
-    </style>
+      .btn-group .btn {
+          margin-right: 5px;
+          /* Điều chỉnh khoảng cách giữa các nút */
+      }
+  </style>
 @endsection

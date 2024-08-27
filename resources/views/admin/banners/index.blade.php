@@ -51,16 +51,20 @@
                         <td>{{$ban->created_at}}</td>
                         <td>{{$ban->updated_at}}</td>
                         <td>
-                            <a href="{{route('banners.edit',[$ban->banner_id])}}" class="btn btn-warning" > 
-                               Sửa
+                          <div class="btn-group">
+                            <a href="{{route('banners.edit',[$ban->banner_id])}}" class="btn btn-warning mr-2" title="Chỉnh sửa" > 
+                              <i class="fas fa-edit"></i>
                             </a>
-                            <br>
-                            <br>
+                       
                             <form method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa danh mục này?');" action="{{route('banners.destroy',[$ban->banner_id])}}">
                                 @method('DELETE')
                                 @csrf
-                               <input type="submit" class="btn btn-danger" value="Xóa">
+                                <button type="submit" class="btn btn-danger" title="Xóa">
+                                  <i class="fas fa-times"></i> <!-- Biểu tượng "Times" -->
+                              </button>
                             </form>
+                          </div>
+                           
                         </td>
                     </tr>
                     @endforeach

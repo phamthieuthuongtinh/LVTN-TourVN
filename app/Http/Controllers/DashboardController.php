@@ -7,8 +7,13 @@ use App\Models\Statistical;
 use App\Models\Tour;
 use App\Models\Category;
 use App\Models\Departure;
-use App\Models\Comment;
-use App\Models\Rating;
+use App\Models\User;
+use App\Models\Business;
+use App\Models\Statisticalbusinesses;
+use Illuminate\Support\Facades\Auth;
+
+use function PHPUnit\Framework\isEmpty;
+
 class DashboardController extends Controller
 {
     /**
@@ -67,24 +72,56 @@ class DashboardController extends Controller
         //
     }
     public function show_dashboard(){
-       
-        return view('admin.dashboard.statistic');
+       $businesses= User::where('role','business')->where('status',1)->get();
+        return view('admin.dashboard.statistic',compact('businesses'));
     }
     public function filterStatistics(Request $request)
     {
         // Xác định ngày bắt đầu và ngày kết thúc từ yêu cầu
+        
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
-
+        $business_id=$request->input('business_id');
+        
         // Chuyển đổi định dạng ngày để dễ so sánh
-        $startDate = date('Y-m-d', strtotime($startDate));
-        $endDate = date('Y-m-d', strtotime($endDate));
+        if ($startDate) {
+            $startDate = date('Y-m-d', strtotime($startDate));
+        }
+        if ($endDate) {
+            $endDate = date('Y-m-d', strtotime($endDate));
+        }
+        
 
         // Truy vấn dữ liệu từ cơ sở dữ liệu theo ngày bắt đầu và kết thúc
-        $statistics = Statistical::whereBetween('order_date', [$startDate, $endDate])
-            ->selectRaw('DATE_FORMAT(order_date, "%d/%m/%Y") as date, SUM(sales) as total_sales, SUM(profit) as total_profit')
+        if(Auth::user()->id==1){
+            if($business_id ){
+               if($startDate && $endDate) {
+                    $statistics = Statisticalbusinesses::whereBetween('order_date', [$startDate, $endDate])
+                    ->selectRaw('DATE_FORMAT(order_date, "%d/%m/%Y") as date, SUM(sales) as total_sales, SUM(profit) as total_profit') ->where('business_id', $business_id)
+                    ->groupBy('date')
+                    ->get();
+               }
+               else{
+                    $statistics = Statisticalbusinesses::selectRaw('DATE_FORMAT(order_date, "%d/%m/%Y") as date, SUM(sales) as total_sales, SUM(profit) as total_profit') 
+                    ->where('business_id', $business_id)
+                    ->groupBy('date')
+                    ->get();
+               }
+            }  
+            else{
+                 $statistics = Statistical::whereBetween('order_date', [$startDate, $endDate])
+                ->selectRaw('DATE_FORMAT(order_date, "%d/%m/%Y") as date, SUM(sales) as total_sales, SUM(profit) as total_profit')
+                ->groupBy('date')
+                ->get();
+            } 
+        }
+        else{
+            $statistics = Statisticalbusinesses::whereBetween('order_date', [$startDate, $endDate])
+            ->selectRaw('DATE_FORMAT(order_date, "%d/%m/%Y") as date, SUM(sales) as total_sales, SUM(profit) as total_profit') ->where('business_id', Auth::user()->id)
             ->groupBy('date')
             ->get();
+        }
+        
 
         // Tạo dữ liệu cho biểu đồ
         $labels = [];

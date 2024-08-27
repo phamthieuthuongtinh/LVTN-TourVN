@@ -13,7 +13,7 @@ class CategoriesController extends Controller
      */
     public function index()
     {
-        $categories= Category::Orderby('id','DESC')->get();
+        $categories= Category::Orderby('id','DESC')->where('status',1)->get();
         return view('admin.categories.index', compact('categories'));
     }
 
@@ -56,7 +56,7 @@ class CategoriesController extends Controller
         $category->title = $data['title'];
         $category->category_parent = $data['category_parent'];
         $category->description = $data['description'];
-        $category->status = $data['status'];
+        $category->status = 1;
         $category->slug =  Str::slug($data['title']);
         
         $get_image = $request->image;
@@ -137,7 +137,8 @@ class CategoriesController extends Controller
     public function destroy(string $id)
     {
         $categories=Category::find($id);
-        $categories->delete();
+        $categories->status=0;
+        $categories->save();
         return redirect()->route('categories.index');
     }
 }

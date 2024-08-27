@@ -11,4 +11,7 @@ class Orderdetail extends Model
     public function tour(){
         return $this->belongsTo(Tour::class,'tour_id','id');
     }
+    public function order(){
+        return $this->belongsTo(Order::class,'order_code','order_code');
+    }
 }

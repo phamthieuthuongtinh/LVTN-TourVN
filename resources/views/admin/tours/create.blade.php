@@ -20,9 +20,17 @@
       <div class="card-body">
          <div class="form-group">
             <label for="exampleInputEmail1">Danh mục tour</label>
-            <select class="form-control" name="category_id" id="">
+            <select class="form-control" name="category_id" id="categorySelect">
                @foreach ( $categories as $key => $category )
                   <option value="{{$category->id}}">{{$category->title}}</option>
+               @endforeach
+            </select>
+         </div>
+         <div class="form-group">
+            <label for="exampleInputEmail1">Loại tour</label>
+            <select class="form-control" name="type_id" id="">
+               @foreach ( $types as $key => $type )
+                  <option value="{{$type->id}}">{{$type->type_name}}</option>
                @endforeach
             </select>
          </div>
@@ -102,4 +110,9 @@
       </div>
    </form>
 </div>
+<style>
+   .select2-container .select2-selection--single {
+      height: calc(2.25rem + 2px) !important;
+   }
+</style>
 @endsection

@@ -83,23 +83,27 @@
                                 <td>
 
                                     @if ($depart->status == 1)
-                                        <a href="{{ route('departures.edit', [$depart->id]) }}" class="btn btn-warning">
+                                        {{-- <a href="{{ route('departures.edit', [$depart->id]) }}" class="btn btn-warning">
                                             Sửa
                                         </a>
                                         <br>
-                                        <br>
+                                        <br> --}}
                                         <form method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa?');"
                                             action="{{ route('departures.destroy', [$depart->id]) }}">
                                             @method('DELETE')
                                             @csrf
-                                            <input type="submit" class="btn btn-danger" value="Xóa">
+                                            <button type="submit" class="btn btn-danger" title="Xóa">
+                                                <i class="fas fa-times"></i> <!-- Biểu tượng "Times" -->
+                                            </button>
                                         </form>
                                     @else
                                         <form method="POST" onsubmit="return confirm('Bạn có chắc khôi phục?');"
                                             action="{{ route('departures.destroy', [$depart->id]) }}">
                                             @method('DELETE')
                                             @csrf
-                                            <input type="submit" class="btn btn-success" value="Khôi phục">
+                                            <button type="submit" class="btn btn-warning" title="Khôi phục">
+                                                <i class="fa fa-recycle"></i>
+                                            </button>
                                         </form>
                                     @endif
                                 </td>

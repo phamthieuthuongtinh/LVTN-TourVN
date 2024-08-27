@@ -30,7 +30,14 @@
                @endforeach
             </select>
          </div>
-       
+         <div class="form-group">
+            <label for="exampleInputEmail1">Loại tour</label>
+            <select class="form-control" name="type_id" id="categorySelect">
+               @foreach ( $types as $key => $type )
+                  <option {{$type->id==$tour->type_id ?'selected':''}} value="{{$type->id}}">{{$type->type_name}}</option>
+               @endforeach
+            </select>
+         </div>
          {{-- <div class="form-group">
             <label for="tourType">Loại hình du lịch</label>
             <select class="form-control" name="tour_type" id="tourType">

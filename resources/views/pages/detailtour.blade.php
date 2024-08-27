@@ -36,7 +36,7 @@ $tabActive = 'home'; // Default active tab
                             <h5 class="section-title text-center text-primary text-uppercase">Chi tiết tour</h5>  
                         </div>
                         <h5 class="mb-4"> {{$tour->title}} <span class="text-primary"></span></h5>
-                        <p class="mb-4" style="text-align:justify"><span style="font-size:14px"><span style="font-family:arial,helvetica,sans-serif">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<em> Quy Nhơn &ndash; Mảnh đất thương nhớ.Th&agrave;nh phố thuộc tỉnh B&igrave;nh Định, nơi giao thương cảng biển quan trọng của miền Trung. Quy Nhơn l&agrave; một th&agrave;nh phố ven biển với những bờ biển đẹp như: Kỳ Co, H&ograve;n Kh&ocirc;, Trung Lương, Quy H&ograve;a&hellip; đ&acirc;y l&agrave; những nơi c&oacute; d&ograve;ng nước biển trong xanh đến tận đ&aacute;y, c&oacute; những rạn san h&ocirc; đầy m&agrave;u sắc, cũng l&agrave; những điểm tham quan bậc nhất tại v&ugrave;ng đất n&agrave;y. Đến Quy Nhơn du kh&aacute;ch sẽ được trải nghiệm cuộc sống&nbsp; y&ecirc;n b&igrave;nh của nơi đ&acirc;y, thưởng thức những m&oacute;n ăn độc đ&aacute;o của miền đất v&otilde;, được nghe những c&acirc;u từ của b&agrave;i ch&ograve;i, h&aacute;t bội sẽ l&agrave;m cho du kh&aacute;ch c&oacute; được những khoảnh khoắc đ&aacute;ng nhớ v&agrave; y&ecirc;u c&aacute;i b&igrave;nh dị ở th&agrave;nh phố Quy Nhơn nhỏ xinh n&agrave;y.</em></span></span></p>
+                        <p class="mb-4" style="text-align:justify"><span style="font-size:14px"><span style="font-family:arial,helvetica,sans-serif">{!!$tour->description!!}</span></span></p>
                         <div class="row gy-2 gx-4 mb-4">
                             <div class="col-sm-6">
                                 <p id="" class="mb-0"><i class="fa fa-calendar-alt text-primary me-2"></i>Thời gian: {{$tour->tour_time}}</p>
@@ -57,7 +57,7 @@ $tabActive = 'home'; // Default active tab
                                 <p class="mb-0"><i class="fa fa-building text-primary me-2"></i>Thuộc công ty: {{$tour->user->name}}</p>
                             </div>
                             <div class="text-center">
-                                <h6 class="section-title text-center text-primary text-uppercase">các ngày khởi hành khác</h6>  
+                                <h6 class="section-title text-center text-primary text-uppercase">các ngày khởi hành</h6>  
                             </div>
                             <table class="table table-bordered">
                                 <thead>
@@ -449,7 +449,7 @@ $tabActive = 'home'; // Default active tab
                                                     <img src="{{ asset('frontend/img/user.png') }}" alt="Admin Avatar" class="avatar-img">
                                                 </div>
                                                 <div class="admin-reply-details ms-2">
-                                                    <p class="comment-author text-primary mb-1">Admin</p>
+                                                    <p class="comment-author text-primary mb-1">{{ $rep->comment_name }}</p>
                                                     <p class="comment-text mb-1">{{ $rep->comment_content }}</p>
                                                     <p class="comment-date mb-0">{{ $rep->created_at }}</p>
                                                 </div>
@@ -508,18 +508,24 @@ $tabActive = 'home'; // Default active tab
                             <div class="wow zoomIn" data-wow-delay="0.1s">
                                 <div class="package-item">
                                     <div class="overflow-hidden">
-                                        <img class="img-fluid" src="{{ asset('upload/tours/' . $re->image) }}" alt="">
+                                        <img style="width:456px; height:280px;" class="img-fluid"
+                                            src="{{ asset('upload/tours/' . $re->image) }}" alt="">
                                     </div>
                                     <div class="d-flex border-bottom">
-                                        <small class="flex-fill text-center border-end py-2"><i class="fa fa-map-marker-alt text-primary me-2"></i>{{ $re->category->title }}</small>
-                                        <small class="flex-fill text-center border-end py-2"><i class="fa fa-calendar-alt text-primary me-2"></i>{{ $re->so_ngay }}{{ $re->so_dem }}</small>
-                                        <small class="flex-fill text-center py-2"><i class="fa fa-users text-primary me-2"></i></small>
+                                        <small class="flex-fill text-center border-end py-2"><i
+                                                class="fa fa-map-marker-alt text-primary me-2"></i>{{ $re->category->title }}</small>
+                                        <small class="flex-fill text-center border-end py-2"><i
+                                                class="fa fa-calendar-alt text-primary me-2"></i>{{ $tour->type->type_name}}</small>
+                                        <small class="flex-fill text-center py-2"><i
+                                                class="fa fa-users text-primary me-2"></i>{{ $tour->vehicle }}</small>
                                     </div>
                                     <div class="d-flex border-bottom">
-                                        <small class="flex-fill text-center border-end py-2"><i class="fa fa-bell text-primary me-2"></i>Điểm xuất phát: {{ $re->tour_from }}</small>
+                                        <small class="flex-fill text-center border-end py-2"><i
+                                                class="fa fa-plane text-primary me-2"></i>Địa điểm xuất phát:
+                                            {{ $re->tour_from }}</small>
                                     </div>
                                     <div class="text-center p-4">
-                                        <h3 class="mb-0">{{ number_format($re->price) }}đ</h3>
+                                        <h3 class="mb-0">{{ number_format($re->price) }} đ</h3>
                                         <div class="mb-3">
                                             <small class="fa fa-star text-primary"></small>
                                             <small class="fa fa-star text-primary"></small>
@@ -527,9 +533,35 @@ $tabActive = 'home'; // Default active tab
                                             <small class="fa fa-star text-primary"></small>
                                             <small class="fa fa-star text-primary"></small>
                                         </div>
-                                        <p>{{ $re->title }}</p>
+                                        <p>{{ $tour->title }}</p>
+                                        @php
+                                         if(Session::get('customer_id')){
+                                             $isLiked = $likes->contains('tour_id', $re->id);
+                                         }
+                                           
+                                        @endphp
                                         <div class="d-flex justify-content-center mb-2">
-                                            <a href="{{ route('chi-tiet-tour', ['slug' => $re->slug]) }}" class="btn btn-sm btn-primary px-3 border-end" style="border-radius: 30px;">Chi tiết</a>
+                                            <a href="{{ route('chi-tiet-tour', ['slug' => $re->slug]) }}"
+                                                class="btn btn-sm btn-primary px-3 border-end"
+                                                style="border-radius: 30px;">Chi tiết</a>
+                                           
+                                            <form action="{{ route('tour.like') }}" method="post">
+                                                @csrf
+                                                <input type="hidden" name="customer_id" class="customer_id" value="{{ Session::get('customer_id') }}" id="customer_id">
+                                               
+                                                    @if (Session::get('customer_id'))
+                                                        <button class="favorite-button btn btn-sm ms-2" data-tour-id="{{ $re->id }}">
+                                                            <i style="font-size: 18px; color: {{ $isLiked ? 'red' : 'black' }};" class="fa fa-heart"></i>
+                                                        </button>
+                                                    
+                                                    @else
+                                                    <button  class="favorite-button btn btn-sm ms-2" data-tour-id="{{ $re->id }}">
+                                                        <i style="font-size: 18px" class="fa fa-heart"></i>
+                                                    </button>
+                                                    @endif
+                                                   
+                                            </form>
+                                        
                                         </div>
                                     </div>
                                 </div>

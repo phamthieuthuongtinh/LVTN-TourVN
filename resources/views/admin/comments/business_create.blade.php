@@ -44,7 +44,7 @@
                         }
                     </style>
                     <tbody>
-                        @foreach ($comments as $key => $com)
+                        @foreach ($comments_business as $key => $com)
                             <tr class="{{ $com->status == 2 ? 'deleted-com' : '' }}">
                                 <td>{{ $key }}</td>
                                 <td style="width: 250px;">{{ $com->tour->title }}</td>
@@ -53,7 +53,7 @@
                                     <br>
                                     <p style="color: blue">Các phản hồi cũ:</p>
                                     <ul class="list_rep">
-                                        @foreach ($comment_reply as $key => $comm_reply)
+                                        @foreach ($commnent_reply_business as $key => $comm_reply)
                                             @if ($comm_reply->comment_parent_comment == $com->comment_id && $comm_reply->status != 2)
                                                 <li>
                                                     <div class="btn-group">

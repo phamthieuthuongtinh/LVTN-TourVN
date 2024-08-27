@@ -39,7 +39,7 @@
                                 <th>Doanh nghiệp</th>
                             @endif
 
-                            <th>Giá tour</th>
+                            {{-- <th>Giá tour</th> --}}
 
                             {{-- <th>Mô tả</th>
                     <th>Phương tiện</th> --}}
@@ -83,7 +83,7 @@
                                     <td>{{ $tour->user->name }}</td>
                                 @endif
 
-                                <td>
+                                {{-- <td>
                                     <p style="color: blue; padding:0px; margin: 0px;">>11 tuổi:</p>
                                     {{ number_format($tour->price) }}đ
                                     <p style="color: blue; padding:0px; margin: 0px;">5-11 tuổi:</p>
@@ -93,7 +93,7 @@
                                     <p style="color: blue; padding:0px; margin: 0px;">
                                         <2 tuổi:</p>
                                             {{ number_format($tour->price_sosinh) }}đ
-                                </td>
+                                </td> --}}
 
                                 {{-- <td>{{ substr($tour->description, 0, 20) }}...</td>
                         <td>{{$tour->vehicle}}</td> --}}
@@ -122,26 +122,37 @@
                       
                         <td>{{$tour->created_at}}</td> --}}
                                 <td>
+                                    <div class="btn-group">
+                                        <a href="{{ route('tours.xem', [$tour->id]) }}" class="btn btn-info mr-2"
+                                            title="Xem">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        @if ($tour->status == 2)
+                                            <form method="POST" action="{{ route('tours.duyet', [$tour->id]) }}"
+                                                title="Duyệt">
+                                                @method('PATCH')
+                                                @csrf
+                                                <i class="fas fa-check"></i> <!-- Biểu tượng "Check" -->
+                                            </form>
+                                            <br>
+                                            <form method="POST" action="{{ route('tours.tuchoi_duyet', [$tour->id]) }}">
+                                                @method('PATCH')
+                                                @csrf
+                                                <button type="submit" class="btn btn-danger" title="Từ chối">
+                                                    <i class="fas fa-times"></i> <!-- Biểu tượng "Times" -->
+                                                </button>
+                                            </form>
+                                        @elseif($tour->status == 3)
+                                            <form method="POST" action="{{ route('tours.duyet', [$tour->id]) }}">
+                                                @method('PATCH')
+                                                @csrf
+                                                <button type="submit" class="btn btn-warning" title="Bỏ duyệt">
+                                                    <i class="fas fa-undo"></i> <!-- Biểu tượng "Undo" -->
+                                                </button>
+                                            </form>
+                                        @endif
 
-                                    @if ($tour->status == 2)
-                                        <form method="POST" action="{{ route('tours.duyet', [$tour->id]) }}">
-                                            @method('PATCH')
-                                            @csrf
-                                            <input type="submit" class="btn btn-success" value="Duyệt">
-                                        </form>
-                                        <br>
-                                        <form method="POST" action="{{ route('tours.tuchoi_duyet', [$tour->id]) }}">
-                                            @method('PATCH')
-                                            @csrf
-                                            <input type="submit" class="btn btn-danger" value="Từ chối">
-                                        </form>
-                                    @elseif($tour->status == 3)
-                                        <form method="POST" action="{{ route('tours.duyet', [$tour->id]) }}">
-                                            @method('PATCH')
-                                            @csrf
-                                            <input type="submit" class="btn btn-warning" value="Bỏ duyệt">
-                                        </form>
-                                    @endif
+                                    </div>
 
                                 </td>
                             </tr>
@@ -151,4 +162,10 @@
             </div>
         </div>
     </div>
+    <style>
+        .btn-group .btn {
+            margin-right: 5px;
+            /* Điều chỉnh khoảng cách giữa các nút */
+        }
+    </style>
 @endsection

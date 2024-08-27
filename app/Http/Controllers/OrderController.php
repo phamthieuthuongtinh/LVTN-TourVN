@@ -10,9 +10,11 @@ use App\Models\Departure;
 use App\Models\Orderdetail;
 use App\Models\Voucher;
 use App\Models\Statistical;
+use App\Models\Statisticalbusinesses;
 use App\Models\Tour;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 
 class OrderController extends Controller
@@ -25,7 +27,21 @@ class OrderController extends Controller
         $orders=Order::with('customer')->where('order_status','!=',0)->Orderby('order_status','ASC')->get();   
         return view('admin.orders.index',compact('orders'));
     }
+    public function business_index()
+    {
+        $orders_all=Order::with('customer')->where('order_status','!=',0)->Orderby('order_status','ASC')->get();
 
+        $orderCodes = $orders_all->pluck('order_code')->toArray();
+        $tourIds = OrderDetail::whereIn('order_code', $orderCodes)->pluck('tour_id')->toArray();
+        $businessTourIds = Tour::whereIn('id', $tourIds)->where('business_id', Auth::user()->id)->pluck('id')->toArray();
+        $orders = $orders_all->filter(function($order) use ($businessTourIds) {
+            return OrderDetail::where('order_code', $order->order_code)
+                ->whereIn('tour_id', $businessTourIds)
+                ->exists();
+        });
+        $orders = $orders->values();
+        return view('admin.orders.business_index',compact('orders'));
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -135,8 +151,19 @@ class OrderController extends Controller
         } else {
             $statistic_count = 0;
         }
+        //doanh nghiệp
+        $statistic_business = Statisticalbusinesses::where('order_date', $order->order_date)->where('business_id',Auth::user()->id)->get();
+        if ($statistic_business) {
+            $statistic_businessc_count = $statistic_business->count();
+        } else {
+            $statistic_businessc_count = 0;
+        }
+
+
         $order_detail = Orderdetail::where('orderdetails_id',$request->orderdetails_id)->first();
         $departure = Departure::where('tour_id',$order_detail->tour_id)->where('departure_date',$order_detail->departure_date)->first();
+
+
         // Giá tour cho từng loại khách hàng
         $tour = Tour::where('id',$order_detail->tour_id)->first();
         $price_adult = $tour->price;
@@ -195,6 +222,25 @@ class OrderController extends Controller
                 $statistic_new->total_order = $total_order;
                 $statistic_new->save();
             }
+
+            //Lưu statistical cho từng doanh nghiệp
+            if ($statistic_businessc_count > 0) {
+                $statistic_business_update = Statisticalbusinesses::where('order_date', $order->order_date)->where('business_id',Auth::user()->id)->first();
+                $statistic_business_update->sales = $statistic_business_update->sales + $sales;
+                $statistic_business_update->profit = $statistic_business_update->profit + $profit;
+                $statistic_business_update->quantity = $statistic_business_update->quantity + $update_quantity;
+                $statistic_business_update->total_order = $statistic_business_update->total_order + $total_order;
+                $statistic_business_update->save();
+            } else {
+                $statistic_business_new = new Statisticalbusinesses();
+                $statistic_business_new->order_date = $order->order_date;
+                $statistic_business_new->sales = $sales;
+                $statistic_business_new->profit = $profit;
+                $statistic_business_new->quantity = $update_quantity;
+                $statistic_business_new->total_order = $total_order;
+                $statistic_business_new->business_id = Auth::user()->id;
+                $statistic_business_new->save();
+            }
             
         }
         elseif($order_status==1){
@@ -243,6 +289,20 @@ class OrderController extends Controller
 
                 if ($statistic_update->sales == 0) {
                     $statistic_update->delete();
+                }
+            }
+
+            //Lưu lợi nhuận cho doanh nghiệp
+            if ($statistic_businessc_count > 0) {
+                $statistic_business_update = Statisticalbusinesses::where('order_date', $order->order_date)->where('business_id',Auth::user()->id)->first();
+                $statistic_business_update->sales = $statistic_business_update->sales - $sales;
+                $statistic_business_update->profit = $statistic_business_update->profit - $profit;
+                $statistic_business_update->quantity = $statistic_business_update->quantity - $update_quantity;
+                $statistic_business_update->total_order = $statistic_business_update->total_order - $total_order;
+                $statistic_business_update->save();
+
+                if ($statistic_business_update->sales == 0) {
+                    $statistic_business_update->delete();
                 }
             }
         }

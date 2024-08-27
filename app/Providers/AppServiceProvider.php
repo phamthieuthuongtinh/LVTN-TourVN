@@ -6,12 +6,14 @@ use Illuminate\Support\ServiceProvider;
 use App\Models\Category;
 use App\Models\Banner;
 use App\Models\Statistical;
+use App\Models\Statisticalbusinesses;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Auth;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function getCategoriesProduct(){
-        $categories= Category::orderBy('id','ASC')->get();
+        $categories= Category::orderBy('title','ASC')->get();
         $listCategory=[];
         Category::recursive($categories,$parents=0,$level=1,$listCategory);
         return $listCategory;
@@ -21,10 +23,25 @@ class AppServiceProvider extends ServiceProvider
         return $banners;
     }
     public function getStatistics(){
-        $statistics = Statistical::selectRaw('MONTH(order_date) as month, SUM(sales) as total_sales, SUM(profit) as total_profit')
-        ->groupByRaw('MONTH(order_date)')
-        ->get();
-        return  $statistics;
+
+       if(isset(Auth::user()->id)){
+
+            if(Auth::user()->id==1){
+             $statistics = Statistical::selectRaw('MONTH(order_date) as month, SUM(sales) as total_sales, SUM(profit) as total_profit')->groupByRaw('MONTH(order_date)')->get();
+            }
+            else{
+                $statistics = Statisticalbusinesses::selectRaw('MONTH(order_date) as month, SUM(sales) as total_sales, SUM(profit) as total_profit') ->where('business_id', Auth::user()->id)
+                ->groupByRaw('MONTH(order_date)')
+                ->get();
+            
+            }
+            return  $statistics;
+       }
+            
+        
+        
+       
+        
     }
     /**
      * Register any application services.

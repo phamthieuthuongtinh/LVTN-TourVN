@@ -41,7 +41,7 @@
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="index3.html" class="nav-link">Home</a>
+        <a href="{{route('home')}}" class="nav-link">Home</a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
         <a href="#" class="nav-link">Contact</a>
@@ -493,10 +493,11 @@
           event.preventDefault(); // Ngăn chặn gửi form theo cách truyền thống
 
           var startDate = $('#startDate').val();
+          var business_id = $('#business_id').val();
           var endDate = $('#endDate').val();
           var _token = $('input[name="_token"]').val();
 
-          if (startDate && endDate) {
+          if (startDate && endDate || business_id) {
               $.ajax({
                   url: "{{ route('dashboard.filter_dashboard') }}",
                   method: "POST",
@@ -504,6 +505,7 @@
                   data: {
                       startDate: startDate,
                       endDate: endDate,
+                      business_id:business_id,
                       _token: _token
                   },
                   success: function(data) {
@@ -518,7 +520,7 @@
                   }
               });
           } else {
-              alert('Vui lòng nhập cả ngày bắt đầu và ngày kết thúc.');
+              alert('Vui lòng nhập thông tin cần lọc.');
           }
       });
       

@@ -58,13 +58,13 @@
                        
                         
                         
-                        <td><img src="{{asset('upload/tours/'.$tour->image)}}" alt="" width=150 height=120></td>
+                        <td><img src="{{asset('upload/tours/'.$tour->image)}}" alt="" width=150 height=100></td>
                        
                         <td>
                             
-                            @if($tour->status==1)
+                            @if($tour->status==3)
                             <a href="{{route('itineraries.show',[$tour->id])}}" class="btn btn-warning" > 
-                              Quản lý
+                              <i class="fas fa-edit"></i>
                            </a>
                            
                             @endif

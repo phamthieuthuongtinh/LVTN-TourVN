@@ -7,7 +7,9 @@ use App\Models\Customer;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Session;
-use App\Models\User;
+use App\Models\Order;
+use App\Models\Orderdetail;
+use App\Models\Like;
 
 class CustomerController extends Controller
 {
@@ -39,8 +41,20 @@ class CustomerController extends Controller
         Session::invalidate(); 
         return redirect()->route('homeweb'); // Chuyển hướng về trang chủ
     }
-    public function infor(){
-      
+    public function infor(string $id){
+        $customer=Customer::where('customer_id',$id)->first();
+        return view('admin.customers.infor_customer',compact('customer'));
+    }
+    public function ordered(string $id){
+        $ordereds=Order::where('customer_id',$id)->where('order_status','!=',0)->get();
+        $order_codes = $ordereds->pluck('order_code')->toArray();
+        $orderdetails = OrderDetail::whereIn('order_code', $order_codes)->with('tour')->with('order')->get();
+        return view('admin.customers.ordered_customer',compact('ordereds','orderdetails'));
+    }
+
+    public function liked(string $id){
+        $likes=Like::where('customer_id',$id)->with('tour')->get();
+        return view('admin.customers.liked_customer',compact('likes'));
     }
     public function index()
     {
@@ -65,6 +79,7 @@ class CustomerController extends Controller
                 'email' => 'required|unique:customers|max:255',
                 'name' => 'required',
                 'phone' => 'required|max:220',
+              
                 'password1' => 'required',
                 'password2' => 'required|same:password1',
             ], [
@@ -81,6 +96,10 @@ class CustomerController extends Controller
             $customer = new Customer();
             $customer->email = $data['email'];
             $customer->phone = $data['phone'];
+            $customer->age = $request->input('age', null);
+            $customer->job = $request->input('job', null);
+            $customer->hobby = $request->input('hobby', null);
+            $customer->status = 1;
             $customer->customer_name = $data['name'];
             $customer->password = Hash::make($data['password1']);
 

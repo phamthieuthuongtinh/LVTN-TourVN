@@ -75,6 +75,7 @@
                                                 title="Cập nhật">
                                                 <i class="fas fa-edit"></i>
                                             </a>
+
                                             <form method="POST"
                                                 onsubmit="return confirm('Bạn có chắc muốn xóa tour này?');"
                                                 action="{{ route('orders.destroy', [$ord->order_id]) }}">

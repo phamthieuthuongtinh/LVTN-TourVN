@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 use App\Models\Comment;
 use App\Models\Rating;
+use App\Models\Tour;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
@@ -17,10 +19,35 @@ class CommentController extends Controller
                   ->orWhere('status', 2);
         })
         ->whereNull('comment_parent_comment')
-        ->orderBy('comment_id', 'DESC')
+        ->orderBy('status', 'ASC')
         ->get();
 
         return view('admin.comments.index',compact('comments'));
+    }
+    public function business_index()
+    {
+        $comments = Comment::with('tour')->where(function($query) {
+            $query->where('status', 0)
+                  ->orWhere('status', 2);
+        })
+        ->whereNull('comment_parent_comment')
+        ->orderBy('status', 'ASC')
+        ->get();
+        $comments_business = collect();
+        if(Auth::user()->id!=1){
+            $tours=Tour::with('category')->with('user')->where('business_id',Auth::user()->id)->Orderby('status','DESC')->get();
+            $tourIds = $tours->pluck('id')->toArray();
+            $comments_business = Comment::with('tour')
+                ->whereIn('comment_tour_id', $tourIds)
+                ->where(function($query) {
+                    $query->where('status', 0)
+                        ->orWhere('status', 2);
+                })
+                ->whereNull('comment_parent_comment')
+                ->orderBy('status', 'ASC')
+                ->get();
+                    }
+        return view('admin.comments.business_index',compact('comments_business'));
     }
 
     /**
@@ -33,6 +60,19 @@ class CommentController extends Controller
         return view('admin.comments.create',compact('comments','comment_reply'));
     }
 
+    public function business_create(){
+        $comments= Comment::where('status',1)->whereNull('comment_parent_comment')->orderby('comment_id','DESC')->get();
+        $comment_reply = Comment::with('tour')->orderby('status', 'DESC')->get();
+
+        $comments_business = collect();
+        if(Auth::user()->id!=1){
+            $tours=Tour::with('category')->with('user')->where('business_id',Auth::user()->id)->Orderby('status','DESC')->get();
+            $tourIds = $tours->pluck('id')->toArray();
+            $comments_business = Comment::with('tour')->where('status',1)->whereNull('comment_parent_comment')->whereIn('comment_tour_id', $tourIds)->orderBy('comment_id', 'ASC')->get();
+            $commnent_reply_business = Comment::with('tour')->whereIn('comment_tour_id', $tourIds)->orderby('status', 'DESC')->get();
+         }
+        return view('admin.comments.business_create',compact('comments_business','commnent_reply_business'));
+    }
     /**
      * Store a newly created resource in storage.
      */
@@ -127,7 +167,8 @@ class CommentController extends Controller
         $comment->comment_tour_id = $data['comment_tour_id'];
         $comment->comment_parent_comment = $data['comment_id'];
         $comment->status = 1;
-        $comment->comment_name = 'Admin';
+        $comment->comment_name = Auth::user()->name;
+        $comment->customer_id = Auth::user()->id;
         $comment->save();
     }
 }

@@ -31,49 +31,58 @@
                   <thead>
                   <tr>
                     <th>#</th>
-                    <th>Tiêu đề</th>
-                    <th width="300">Mô tả</th>
-                    <th>Hình ảnh</th>
-                    <th>Slug</th>
+                    <th>Tên Khách hàng</th>
+                    <th>Email</th>
+                    <th>Số điện thoại</th>
                     <th>Trạng thái</th>
-                    <th>Ngày tạo</th>
-                    <th>Ngày cập nhật</th>
+                    <th>Ngày đăng ký</th>
                     <th>Thao tác</th>
+                    
                   </tr>
                   </thead>
                   <tbody>
-                    @foreach($categories as $key => $cate)
+                    @foreach($customers as $key => $reg)
                     <tr>
                         <td>{{$key}}</td>
-                        <td>{{$cate->title}}</td>
-                        <td>{{$cate->description}}</td>
-                        <td><img src="{{asset('upload/categories/'.$cate->image)}}" alt="" width=150 height=120></td>
-                        <td>{{$cate->slug}}</td>
-                        <td>
+                        <td>{{$reg->customer_name}}</td>
+                        <td>{{$reg->email}}</td>
+                        <td>{{$reg->phone}}</td>
+                        {{-- <td>
                             @if($cate->status==1)
                             <a href="#"><span style="color:blue; font-size:16px;" class="fa-thumb-styling fa fa-thumbs-up"></span> Hiển thị</a>
                             @else
                             <a href="#"><span style="color:red; font-size:16px;" class="fa-thumb-styling fa fa-thumbs-down"></span> Ẩn</a>
                             @endif
-                        </td>
-                        <td>{{$cate->created_at}}</td>
-                        <td>{{$cate->updated_at}}</td>
+                        </td> --}}
                         <td>
-                          <div class="btn-group">
-                              <a href="{{ route('categories.edit', [$cate->id]) }}" class="btn btn-warning mr-1" title="Chỉnh sửa">
-                                  <i class="fas fa-edit"></i>
-                              </a>
-                      
-                              <form method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa danh mục này?');" action="{{ route('categories.destroy', [$cate->id]) }}" style="display: inline;">
-                                  @method('DELETE')
-                                  @csrf
-                                  <button type="submit" class="btn btn-danger" title="Xóa">
+                            @if($reg->status==1)
+                                Còn hoạt động
+                            @elseif($reg->status==0)
+                                Dừng hoạt động
+                            @endif
+                        </td>
+                        <td>{{$reg->created_at}}</td>
+                       
+                        <td>
+                            @if($reg->status==1)
+                                <form method="POST" onsubmit="return confirm('Bạn có chắc xóa?');" action="{{route('admin.destroy_customer',[$reg->customer_id])}}">
+                               
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger" title="Xóa tài khoản">
                                       <i class="fas fa-times"></i> <!-- Biểu tượng "Times" -->
                                   </button>
-                              </form>
-                          </div>
-                      </td>
-                      
+                                </form>
+                            @else
+                            <form method="POST"  action="{{route('admin.destroy_customer',[$reg->customer_id])}}">
+                
+                                @csrf
+                            <input type="submit" class="btn btn-warning" value="Khôi phục">
+                            </form>
+                        
+                            
+                            @endif
+                            
+                        </td>
                     </tr>
                     @endforeach
                   </tbody>

@@ -7,7 +7,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Models\Business;
 use App\Models\Departure;
-use App\Models\Comment;
+use App\Models\Customer;
 use App\Models\Rating;
 use App\Models\Itinerary;
 use App\Models\Service;
@@ -21,6 +21,23 @@ class AdminController extends Controller
     public function business_manage(){
         $registers=Register::where('status','!=',0)->orderby('status','ASC')->get();
         return view('admin.businesses.index',compact('registers'));
+    }
+    public function customer_manage(){
+        $customers=Customer::where('status','!=',0)->orderby('status','ASC')->get();
+        return view('admin.customers.admin_index',compact('customers'));
+    }
+    public function destroy_customer(String $id){
+        $customer= Customer::where('customer_id',$id)->first();
+        if($customer->status==1){
+            $customer->status=0;
+            $customer->save();
+            toastr()->success('Xóa tài khoản thành công!');
+        }else{
+            $customer->status=1;
+            $customer->save();
+            toastr()->success('Khôi phục tài khoản thành công!');
+        }
+        return redirect()->back();
     }
     public function edit_register(String $id)
     {

@@ -5,14 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Tour;
 use App\Models\Category;
+use App\Models\Type;
 use App\Models\Departure;
 use App\Models\Comment;
 use App\Models\Rating;
 use App\Models\Itinerary;
 use App\Models\Service;
-use App\Models\Itinerarydetail;
+use App\Models\Like;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
 class ToursController extends Controller
 {
@@ -23,17 +25,17 @@ class ToursController extends Controller
     public function index()
     {   
         if(Auth::user()->id!=1){
-            $tours=Tour::with('category')->with('user')->where('business_id',Auth::user()->id)->Orderby('status','DESC')->get();
+            $tours=Tour::with('category')->with('user')->with('type')->where('business_id',Auth::user()->id)->Orderby('status','DESC')->get();
         }
         else{
-            $tours=Tour::with('category')->with('user')->Orderby('status','DESC')->get();
+            $tours=Tour::with('category')->with('user')->with('type')->Orderby('status','DESC')->get();
         }
         return view('admin.tours.index',compact('tours'));
     }
     public function admin_index_tour()
     {   
   
-        $tours=Tour::with('category')->with('user')->where('status',2)->orwhere('status',3)->Orderby('status','ASC')->get();
+        $tours=Tour::with('category')->with('user')->with('type')->where('status',2)->orwhere('status',3)->Orderby('status','ASC')->get();
     
         return view('admin.tours.admin_index',compact('tours'));
     }
@@ -42,8 +44,9 @@ class ToursController extends Controller
      */
     public function create()
     {
-        $categories= Category::Orderby('id','DESC')->get();
-        return view('admin.tours.create',compact('categories'));
+        $categories= Category::Orderby('id','DESC')->where('status',1)->get();
+        $types= Type::Orderby('id','ASC')->where('status',1)->get();
+        return view('admin.tours.create',compact('categories','types'));
     }
 
     /**
@@ -53,9 +56,10 @@ class ToursController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|unique:tours|max:255',
-            'description' => 'required|max:220',
+            'description' => 'required',
            
             'category_id' => 'required',
+            'type_id' => 'required',
             'price' => 'required',
             'price_treem' => 'required',
             'price_trenho' => 'required',
@@ -64,7 +68,7 @@ class ToursController extends Controller
             'tour_from' => 'required',
             'tour_to' => 'required',
             'image' => 'required',
-            'status' => 'required',
+           
             'business_id' => 'required',
             'so_ngay' => 'required',
             'so_dem' => 'required',
@@ -78,7 +82,7 @@ class ToursController extends Controller
             'tour_from.required' => 'Bạn chưa nhập nơi xuất phát',
             'tour_to.required' => 'Bạn chưa nhập nơi đến',
             'image.required' => 'Bạn chưa chọn hình ảnh',
-            'status.required' => 'Bạn chưa chọn trạng thái hiển thị',
+    
 
             'so_ngay.required' => 'Bạn chưa nhập số ngày',
             'so_dem.required' => 'Bạn chưa nhập số đêm',
@@ -90,6 +94,7 @@ class ToursController extends Controller
         $tour->status = 1;
       
         $tour->category_id = $data['category_id'];
+        $tour->type_id = $data['type_id'];
         $tour->price = $data['price'];
         $tour->price_treem = $data['price_treem'];
         $tour->price_trenho = $data['price_trenho'];
@@ -122,15 +127,25 @@ class ToursController extends Controller
     {
         //
     }
+    public function xem(string $id)
+    {
 
+        $tour= Tour::where('id',$id)->with('category')->with('type')->first();
+        $departures=Departure::where('tour_id',$id)->where('status',1)->where('departure_date', '>=', Carbon::today())->orderBy('departure_date', 'ASC')->get();
+        $service = Service::where('tour_id', $tour->id)->first();
+        $itineraries = Itinerary::where('tour_id', $tour->id)->orderby('day_number', 'ASC') ->get();
+
+        return view('admin.tours.info_tour_admin',compact('tour','departures','itineraries','service')); 
+    }
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
         $categories= Category::Orderby('id','DESC')->get();
+        $types= Type::Orderby('id','ASC')->where('status',1)->get();
         $tour= Tour::find($id);
-        return view('admin.tours.edit',compact('tour','categories'));
+        return view('admin.tours.edit',compact('tour','categories','types'));
     }
 
     /**
@@ -140,9 +155,10 @@ class ToursController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|max:255',
-            'description' => 'required|max:220',
+            'description' => 'required',
          
             'category_id' => 'required',
+            'type_id' => 'required',
             'price' => 'required',
             'price_treem' => 'required',
             'price_trenho' => 'required',
@@ -154,7 +170,7 @@ class ToursController extends Controller
             'tour_to' => 'required',
             'business_id' => 'required',
             
-            'status' => 'required',
+            
         ],[
             'title.required' => 'Bạn chưa nhập tiêu đề',
             'title.unique' => 'Tiêu đề này đã có',
@@ -166,7 +182,7 @@ class ToursController extends Controller
             'so_dem.required' => 'Bạn chưa nhập số đêm',
             'tour_from.required' => 'Bạn chưa nhập nơi xuất phát',
             'tour_to.required' => 'Bạn chưa nhập nơi đến',
-            'status.required' => 'Bạn chưa chọn trạng thái hiển thị',
+       
             
         ]);
         $tour = Tour::find($id);
@@ -175,6 +191,7 @@ class ToursController extends Controller
         $tour->status = 1;
 
         $tour->category_id = $data['category_id'];
+        $tour->type_id = $data['type_id'];
         $tour->price = $data['price'];
         $tour->price_treem = $data['price_treem'];
         $tour->price_trenho = $data['price_trenho'];
@@ -223,7 +240,7 @@ class ToursController extends Controller
     }
     public function tour($slug){
         $category= Category::where('slug',$slug)->first();
-        $tours= Tour::where('category_id',$category->id)->with('category')->with(['departures' => function($query) {
+        $tours= Tour::where('category_id',$category->id)->where('status',3)->with('category')->with(['departures' => function($query) {
             $query->where('status',1)->where('departure_date', '>=', Carbon::today())
                   ->orderBy('departure_date', 'ASC');
         }])->get();
@@ -232,11 +249,19 @@ class ToursController extends Controller
             if ($tour->departures->isNotEmpty()) {
                 $nearestDeparture = $tour->departures->first(); // Lấy ngày khởi hành gần nhất của tour đầu tiên
                 break; // Nếu đã tìm thấy ngày khởi hành gần nhất, thoát vòng lặp
-            }
-            
+            } 
         }
-
-        return view('pages.tour',compact('tours','nearestDeparture','category'));
+        $tourfroms = $tours->unique('tour_from');
+        $type_tour_id=$tours->pluck('type_id')->toArray();
+        $typetours=Type::whereIn('id',$type_tour_id)->get();
+        $tour_to=Category::whereNotIn('id', [5, 6])->orderBy('title', 'asc')->get();
+        if(Session::get('customer_id')){
+            $likes=Like::where('customer_id',Session::get('customer_id'))->get();
+            return view('pages.tour',compact('tours','nearestDeparture','category','likes','tourfroms','typetours','tour_to'));
+        }
+        else{
+             return view('pages.tour',compact('tours','nearestDeparture','category','tourfroms','typetours','tour_to'));
+        } 
     }
     public function detail_tour($slug){
         
@@ -259,7 +284,7 @@ class ToursController extends Controller
         $relate= Tour::where('category_id',$tour->category_id)->with('category')->with(['departures' => function($query) {
             $query->where('status',1)->where('departure_date', '>=', Carbon::today())
                   ->orderBy('departure_date', 'ASC');
-        }])->get();
+        }])->take(3)->get();
         //Ngày gần nhất cho tour liên quan
         foreach ($relate as $relatedTour) {
             $nearestRelatedDeparture = $relatedTour->departures->filter(function($depart) {
@@ -287,8 +312,9 @@ class ToursController extends Controller
             // ];
             // });
             // });
-
-        return view('pages.detailtour',compact('tour','departures','nearestDeparture','comments','reply','ratings','itineraries','service','relate'));
+        $customer_id=Session::get('customer_id');
+        $likes=Like::where('customer_id',$customer_id)->get();
+        return view('pages.detailtour',compact('tour','departures','nearestDeparture','comments','reply','ratings','itineraries','service','relate','likes'));
     }
     
     public function gui_duyet(String $id){
@@ -334,18 +360,50 @@ class ToursController extends Controller
     }
 
     public function manage_departure(){
-        $tours=Tour::where('status',1)->orderby('id','desc')->get();
+        if(Auth::user()->id!=1){
+            $tours=Tour::where('status',3)->where('business_id',Auth::user()->id)->orderby('id','desc')->get();
+        }
+        else{
+            $tours=Tour::where('status',1)->orderby('id','desc')->get();
+        }
+       
         
         return view('admin.departures.index',compact('tours'));
     }
     public function manage_itinerary(){
-        $tours=Tour::where('status',1)->orderby('id','desc')->get();
-        
+        if(Auth::user()->id!=1){
+            $tours=Tour::where('status',3)->where('business_id',Auth::user()->id)->orderby('id','desc')->get();
+        }
+        else{
+            $tours=Tour::where('status',3)->orderby('id','desc')->get();
+        }
         return view('admin.itineraries.index',compact('tours'));
     }
     public function manage_service(){
-        $tours=Tour::where('status',1)->orderby('id','desc')->get();
+        if(Auth::user()->id!=1){
+            $tours=Tour::where('status',3)->where('business_id',Auth::user()->id)->orderby('id','desc')->get();
+        }
+        else{
+            $tours=Tour::where('status',3)->orderby('id','desc')->get();
+        }
+        
         
         return view('admin.services.index',compact('tours'));
+    }
+    public function tour_like(Request $request){
+        $data=$request->all();
+        $find_like=Like::where('customer_id',$data['customer_id'])->where('tour_id',$data['tour_id'])->first();
+        if($find_like){
+            $find_like->delete();
+            return response()->json(['status' => 'removed', 'message' => 'Đã bỏ yêu thích!']);
+        }else{
+            $like=new Like();
+            $like->customer_id=$data['customer_id'];
+            $like->tour_id=$data['tour_id'];
+            $like->save();  
+            return response()->json(['status' => 'added', 'message' => 'Đã thêm vào yêu thích!']);
+        }
+           
+       
     }
 }

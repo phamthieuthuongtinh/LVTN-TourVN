@@ -37,18 +37,32 @@
                         <div class="d-flex flex-wrap align-items-center">
                             <div class="form-group mb-2 mr-3">
                                 <label for="startDate" class="mr-2">Ngày bắt đầu:</label>
-                                <input type="date" class="form-control" id="startDate" name="startDate" required />
+                                <input type="date" class="form-control" id="startDate" name="startDate"/>
                             </div>
                             <div class="form-group mb-2 mr-3">
                                 <label for="endDate" class="mr-2">Ngày kết thúc:</label>
-                                <input type="date" class="form-control" id="endDate" name="endDate" required />
+                                <input type="date" class="form-control" id="endDate" name="endDate"/>
                             </div>
+                            @if (Auth::user()->id==1)
+                            <div class="form-group mb-2 mr-3">
+                              <label for="business_id" class="mr-2">Công ty:</label>
+                              <br>
+                              <select class="form-control" name="business_id" id="business_id">
+                                 <option value="">Chọn công ty</option>
+                                 @foreach ($businesses as $key=>$busi )
+                                    <option value="{{$busi->id}}">{{$busi->name}}</option>
+                                 @endforeach
+                                 
+                              </select>
+                           </div>
+                            @endif
                         </div>
                         <!-- Đẩy các nút xuống dòng -->
                         <div class="d-flex">
                             <button type="submit" class="btn btn-primary mr-2" id="applyDateFilter">Lọc</button>
                             <button type="button" class="btn btn-secondary" id="resetForm">Làm mới</button>
                         </div>
+                       
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     </form>
                 </div>

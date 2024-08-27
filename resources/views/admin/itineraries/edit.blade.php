@@ -54,7 +54,8 @@
                     <input type="hidden" name="tour_id" value="{{$tour_id}}">
                     <div class="card-footer d-flex justify-content-center">
                         {{-- <button type="button" class="btn btn-secondary add-detail-item mr-2" data-day="{{$i}}">Thêm chi tiết hoạt động</button> --}}
-                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                        <button type="submit" class="btn btn-primary">
+                            Cập nhật</button>
                     </div>
                 </form>
     

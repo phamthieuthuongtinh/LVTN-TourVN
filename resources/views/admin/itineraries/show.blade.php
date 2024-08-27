@@ -54,7 +54,9 @@
                                     
                                     <td><img width="100" height="100" src="{{ asset('upload/tours/' . $currentItinerary->image) }}" alt=""></td>
                                     <td>
-                                        <a href="{{ route('itineraries.change',['tour_id' => $tour_id ,'day_number' => $i]) }}" class="btn btn-warning">Cập nhật</a>
+                                        <a href="{{ route('itineraries.change',['tour_id' => $tour_id ,'day_number' => $i]) }}" class="btn btn-warning" title="Cập nhật"> 
+                                            <i class="fas fa-edit"></i>
+                                        </a>
                                     </td>
                                 @else
                                     <td>Không có thông tin</td>

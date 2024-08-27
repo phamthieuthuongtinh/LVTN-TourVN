@@ -1,6 +1,6 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
   <!-- Brand Logo -->
-  <a href="index3.html" class="brand-link">
+  <a href="{{route('home')}}" class="brand-link">
   <img src="{{asset('backend/dist/img/AdminLTELogo.png')}}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
   <span class="brand-text font-weight-light">Trang Quản Trị</span>
   </a>
@@ -78,7 +78,7 @@
               <a href="{{route('categories.index')}}" class="nav-link">
                  <i class="nav-icon fas fa-folder-open"></i>
                  <p>
-                    Danh Mục
+                    Danh Mục Địa Lý
                     <i class="right fas fa-angle-left"></i>
                  </p>
               </a>
@@ -99,6 +99,31 @@
                  </li>
               </ul>
            </li>
+           <li class="nav-item {{Request::segment(1)=='types' ? 'menu-is-opening menu-open' : ''}}">
+            <a href="{{route('types.index')}}" class="nav-link">
+               <i class="nav-icon fas fa-folder-open"></i>
+               <p>
+                  Danh Mục Loại
+                  <i class="right fas fa-angle-left"></i>
+               </p>
+            </a>
+            <ul class="nav nav-treeview pl-4">
+               <li class="nav-item">
+                  <a href="{{route('types.create')}}" class="nav-link">
+                     <i class="fa-solid fa-plus"></i>
+                     <p>Thêm Danh Mục</p>
+                  </a>
+               </li>
+            </ul>
+            <ul class="nav nav-treeview pl-4">
+               <li class="nav-item">
+                  <a href="{{route('types.index')}}" class="nav-link">
+                     <i class="fa-regular fa-rectangle-list"></i>
+                     <p>Tất Cả Danh Mục</p>
+                  </a>
+               </li>
+            </ul>
+         </li>
            <li class="nav-item {{Request::segment(1)=='tours' ? 'menu-is-opening menu-open' : ''}}">
               <a href="{{route('tours.admin_index_tour')}}" class="nav-link">
                  <i class="fa-solid fa-plane-departure"></i>
@@ -240,6 +265,7 @@
                  </li>
               </ul>
            </li>
+           {{-- Sidebar của doanh nghiệp --}}
            @else{
             <li class="nav-item {{Request::segment(1)=='dashboard' ? 'menu-is-opening menu-open' : ''}}">
               <a href="{{route('home')}}" class="nav-link">
@@ -308,7 +334,7 @@
             </ul>
           </li>
           <li class="nav-item {{Request::segment(1)=='comment' ? 'menu-is-opening menu-open' : ''}}">
-            <a href="{{route('comment.index')}}" class="nav-link">
+            <a href="{{route('comment.business_index')}}" class="nav-link">
                <i class="nav-icon fas fa-solid fa-comments"></i>
                <p>
                   Đánh giá
@@ -317,7 +343,7 @@
             </a>
             <ul class="nav nav-treeview pl-4">
                <li class="nav-item">
-                  <a href="{{route('comment.index')}}" class="nav-link">
+                  <a href="{{route('comment.business_index')}}" class="nav-link">
                      <i class="fa-solid fa-check"></i>
                      <p>Duyệt đánh giá</p>
                   </a>
@@ -325,7 +351,7 @@
             </ul>
             <ul class="nav nav-treeview pl-4">
                <li class="nav-item">
-                  <a href="{{route('comment.create')}}" class="nav-link">
+                  <a href="{{route('comment.business_create')}}" class="nav-link">
                      <i class="fa-solid fa-comment-dots"></i>
                      <p>Phản hồi đánh giá</p>
                   </a>
@@ -342,14 +368,14 @@
             </a>
             <ul class="nav nav-treeview pl-4">
                <li class="nav-item">
-                  <a href="{{route('orders.index')}}" class="nav-link">
+                  <a href="{{route('orders.business_index')}}" class="nav-link">
                      <i class="fa-solid fa-ticket"></i>
                      <p>Danh sách đơn</p>
                   </a>
                </li>
             </ul>
          </li>
-         <li class="nav-item {{Request::segment(1)=='vouchers' ? 'menu-is-opening menu-open' : ''}}">
+         {{-- <li class="nav-item {{Request::segment(1)=='vouchers' ? 'menu-is-opening menu-open' : ''}}">
             <a href="{{route('vouchers.index')}}" class="nav-link">
                <i class="fa-solid fa-money-bill"></i>
                <p>
@@ -373,7 +399,7 @@
                   </a>
                </li>
             </ul>
-         </li>
+         </li> --}}
            }
            @endif
            <br>
@@ -388,8 +414,8 @@
               <ul class="nav nav-treeview">
                  <li class="nav-item">
                     <div style="padding-left:30px; color:white;">
-                       <p>Email: admin@gmail.com</p>
-                       <p>SDT: 0386487956</p>
+                       <p>Công ty: {{Auth::user()->name}}</p>
+                       <p>Email: {{Auth::user()->email}}</p>
                        <p>Địa chỉ: Trần Duy Hưng</p>
                        <p>Chức vụ: Chúa tể wibu</p>
                     </div>
